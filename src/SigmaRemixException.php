@@ -30,7 +30,6 @@ abstract class SigmaRemixException extends \Exception
 		// When custom message is anything other than a string or null.
 		if ( !(\is_string($pCustomMessage) && \strlen($pCustomMessage) > 0) && !\is_null($pCustomMessage) )
 		{
-			var_dump($pCustomMessage, gettype($pCustomMessage));
 			throw new \InvalidArgumentException(
 				'Third parameter must be a string of length greater than zero or NULL.',
 				self::INVALID_CODE

@@ -14,7 +14,7 @@ class TemplateExceptionTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @expectedException \Kshabazz\Web\SigmaRemix\TemplateException
-	 * @expectedExceptionMessage Unable to load template file "test".
+	 * @expectedExceptionMessage The template "test" does not exists
 	 * @expectedExceptionCode 1
 	 * @covers ::__construct
 	 * @covers ::getMessageByCode
