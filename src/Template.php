@@ -5,7 +5,7 @@
  *
  * @package \Kshabazz\Web\SigmaRemix
  */
-class Processor
+class Template
 {
 	/**
 	 * Processor constructor.
