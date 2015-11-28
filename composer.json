@@ -1,0 +1,17 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Kshabazz\\Web\\SigmaRemix\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Kshabazz\\Web\\SigmaRemix\\Tests\\": "tests"
+        }
+    },
+    "description": "A recode of HTML_Template_Sigma, which implements Integrated Templates API designed by Ulf Wendel.",
+    "name": "kshabazz/sigma-remix",
+    "require-dev": {
+        "phpunit/phpunit": "^5.0"
+    }
+}
