@@ -10,8 +10,12 @@
         }
     },
     "description": "A recode of HTML_Template_Sigma, which implements Integrated Templates API designed by Ulf Wendel.",
+    "license": "MIT",
     "name": "kshabazz/sigma-remix",
     "require-dev": {
         "phpunit/phpunit": "^5.0"
+    },
+    "scripts": {
+        "tests": "phpunit"
     }
 }
