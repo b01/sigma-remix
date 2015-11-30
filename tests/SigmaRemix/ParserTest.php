@@ -27,11 +27,20 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 		$this->assertInstanceOf( '\\Kshabazz\\Web\\SigmaRemix\\Parser' , $parser );
 	}
 
-//	public function test_parsing_placeholders()
-//	{
-//		$parser = new Parser('{TEST_1}');
-//		$data = $parser->process();
-//	}
+	/**
+	 * @covers ::setPlaceholders
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::process
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::replaceIncludes
+	 */
+	public function test_parsing_placeholders()
+	{
+		$parser = new Parser('{TEST_1}', NULL);
+		$data = $parser->process();
+
+		$this->assertEquals('$TEST_1', $data );
+		$this->assertNotContains('{TEST_1}', $data );
+	}
 //
 //	public function test_parsing_block_with_just_text()
 //	{
