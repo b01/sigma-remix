@@ -22,7 +22,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_construct()
 	{
-		$processor = new Template($this->templateDir . DIRECTORY_SEPARATOR . 'test-1.html');
+		$processor = new Template($this->templateDir . DIRECTORY_SEPARATOR . 'placeholders-1.html');
 
 		$this->assertInstanceOf('\\Kshabazz\\Web\\SigmaRemix\\Template', $processor);
 	}
@@ -47,7 +47,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	{
 		Template::setRootDir( $this->templateDir . DIRECTORY_SEPARATOR );
 
-		$processor = new Template('test-1.html');
+		$processor = new Template('placeholders-1.html');
 
 		Template::setRootDir( NULL );
 

@@ -17,21 +17,37 @@ class Template
 	 */
 	static private $rootDir = '';
 
+	private
+		$parser,
+		/** @var Template file content. */
+		$template,
+		/** @var string File path to the template. */
+		$templateFile;
+
 	/**
 	 * Processor constructor.
 	 */
-	public function __construct($pTemplateFile)
+	public function __construct( $pTemplateFile )
 	{
 		$this->templateFile = static::$rootDir . $pTemplateFile;
 
-		if ( !\file_exists($this->templateFile) )
+		if ( !\file_exists( $this->templateFile ) )
 		{
 			throw new TemplateException( TemplateException::BAD_TEMPLATE_FILE, [$this->templateFile] );
 		}
-
-//		$this->load();
 	}
 
+	public function compile()
+	{
+		// Load the template.
+		$template = \file_get_contents( $this->templateFile );
+//		print_r($template);
+		$parser = new Parser($template);
+
+		$this->parsedTemplate = $parser->process();
+
+		return FALSE;
+	}
 
 	/**
 	 * Turns cache on and stores compile template in the directory specified.
