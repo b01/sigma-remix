@@ -98,11 +98,13 @@ class Parser
 	private function replaceBlock( array $pMatches )
 	{
 		$block = $pMatches[1];
+		$blockContent = \preg_replace_callback( $this->blockRegExp, [$this, 'replaceBlock'], $pMatches[2] );
+//		var_dump($blockContent);
 		$this->blocks[ $block ] = [];
 		$output = "<?php \${$block}_ary = [ \${$block}_vals ];\n"
 				. "foreach (\${$block}_ary as \${$block}_vars):\n"
 				. "\textract(\${$block}_vars); ?>"
-				. "{$pMatches[2]}"
+				. "{$blockContent}"
 				. "<?php endforeach; // END {$block} ?>";
 
 		return $output;

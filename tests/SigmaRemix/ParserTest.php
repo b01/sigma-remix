@@ -66,17 +66,88 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	public function test_parsing_block_with_just_text()
 	{
 		$template = \file_get_contents(
-				$this->templateDir . DIRECTORY_SEPARATOR . 'block-1.html'
+			$this->templateDir . DIRECTORY_SEPARATOR . 'block-1.html'
 		);
 
 		$parser = new Parser( $template, NULL );
 
 		$data = $parser->process();
 
-		$this->assertContains( '$BLOCK_1_ary = [ $BLOCK_1_vals ];', $data );
-		$this->assertContains( 'foreach ($BLOCK_1_ary as $BLOCK_1_vars):', $data );
-		$this->assertContains( 'extract($BLOCK_1_vars);', $data );
+		$expected = "\$BLOCK_1_ary = [ \$BLOCK_1_vals ];\n"
+			. "foreach (\$BLOCK_1_ary as \$BLOCK_1_vars):\n"
+			. "\textract(\$BLOCK_1_vars); ?>";
+		$this->assertContains( $expected, $data );
 		$this->assertContains( 'endforeach; // END BLOCK_1', $data );
+	}
+
+	/**
+	 * @covers ::process
+	 * @covers ::setBlocks
+	 * @covers ::replaceBlock
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::replaceIncludes
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setFunctions
+	 */
+	public function test_should_parse_two_consecutive_blocks()
+	{
+		$template = \file_get_contents(
+			$this->templateDir . DIRECTORY_SEPARATOR . 'blocks-2.html'
+		);
+
+		$parser = new Parser( $template, NULL );
+
+		$data = $parser->process();
+
+		$expected = "\$BLOCK_1_ary = [ \$BLOCK_1_vals ];\n"
+				. "foreach (\$BLOCK_1_ary as \$BLOCK_1_vars):\n"
+				. "\textract(\$BLOCK_1_vars); ?>";
+		$this->assertContains( $expected, $data );
+		$this->assertContains( 'endforeach; // END BLOCK_1', $data );
+
+		$expected = "\$BLOCK_2_ary = [ \$BLOCK_2_vals ];\n"
+				. "foreach (\$BLOCK_2_ary as \$BLOCK_2_vars):\n"
+				. "\textract(\$BLOCK_2_vars); ?>";
+		$this->assertContains( $expected, $data );
+		$this->assertContains( 'endforeach; // END BLOCK_1', $data );
+	}
+
+	/**
+	 * @covers ::process
+	 * @covers ::setBlocks
+	 * @covers ::replaceBlock
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::replaceIncludes
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setFunctions
+	 */
+	public function test_should_parse_nested_blocks()
+	{
+		$template = \file_get_contents(
+			$this->templateDir . DIRECTORY_SEPARATOR . 'nested-blocks.html'
+		);
+
+		$parser = new Parser( $template, NULL );
+
+		$data = $parser->process();
+
+		$expected = "\$BLOCK_1_ary = [ \$BLOCK_1_vals ];\n"
+				. "foreach (\$BLOCK_1_ary as \$BLOCK_1_vars):\n"
+				. "\textract(\$BLOCK_1_vars); ?>";
+		$this->assertContains( $expected, $data );
+		$this->assertContains( 'endforeach; // END BLOCK_1', $data );
+
+		$expected = "\$BLOCK_2_ary = [ \$BLOCK_2_vals ];\n"
+				. "foreach (\$BLOCK_2_ary as \$BLOCK_2_vars):\n"
+				. "\textract(\$BLOCK_2_vars); ?>";
+		$this->assertContains( $expected, $data );
+		$this->assertContains( 'endforeach; // END BLOCK_1', $data );
+
+		$expected = "\$NESTED_BLOCK_1_ary = [ \$NESTED_BLOCK_1_vals ];\n"
+				. "foreach (\$NESTED_BLOCK_1_ary as \$NESTED_BLOCK_1_vars):\n"
+				. "\textract(\$NESTED_BLOCK_1_vars); ?>";
+		$this->assertContains( $expected, $data );
+		$this->assertContains( 'endforeach; // END NESTED_BLOCK_1', $data );
 	}
 
 	/**
