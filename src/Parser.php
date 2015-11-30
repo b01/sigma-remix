@@ -66,12 +66,10 @@ class Parser
 		// 2. Convert all placeholders to variables.
 		$parsed = $this->setPlaceholders( $parsed );
 
-		// TODO: Implement parsing functions.
 		// 3. Parse functions.
 		$parsed = $this->setFunctions( $parsed );
 
 		// TODO: Take into consideration blocks that were added, removed, or replaced.
-
 		// 4. Replace all block tags. At this point all adding, removing, replacing blocks should have been done.
 		$parsed = $this->setBlocks( $parsed );
 
@@ -79,48 +77,10 @@ class Parser
 	}
 
 	/**
-	 * Recursively build a list of all blocks within the template.
-	 *
-	 * @param string $string template to be scanned
-	 *
-	 * @access private
-	 * @return mixed array of block names on success or error object on failure
-	 * @throws PEAR_Error
-	 * @see    $_blocks
-	 */
-	function _buildBlocks($string)
-	{
-		$blocks = array();
-		if (preg_match_all($this->blockRegExp, $string, $regs, PREG_SET_ORDER)) {
-			foreach ($regs as $match) {
-				$blockname    = $match[1];
-				$blockcontent = $match[2];
-				if (isset($this->_blocks[$blockname]) || isset($blocks[$blockname])) {
-					return new \Exception(
-						$this->errorMessage(SIGMA_BLOCK_DUPLICATE, $blockname), SIGMA_BLOCK_DUPLICATE
-					);
-				}
-				$this->_blocks[$blockname] = $blockcontent;
-				$blocks[$blockname] = true;
-				$inner              = $this->_buildBlocks($blockcontent);
-				if (is_a($inner, 'PEAR_Error')) {
-					return $inner;
-				}
-				foreach ($inner as $name => $v) {
-					$pattern     = sprintf('@<!--\s+BEGIN\s+%s\s+-->(.*)<!--\s+END\s+%s\s+-->@sm', $name, $name);
-					$replacement = $this->openingDelimiter.'__'.$name.'__'.$this->closingDelimiter;
-					$this->_children[$blockname][$name] = true;
-					$this->_blocks[$blockname]          = preg_replace(
-						$pattern, $replacement, $this->_blocks[$blockname]
-					);
-				}
-			}
-		}
-		return $blocks;
-	}
-
-	/**
 	 * Get function calls withing template.
+	 *
+	 * @param string $pTemplate
+	 * @return string
 	 */
 	private function setFunctions( $pTemplate )
 	{
@@ -130,17 +90,20 @@ class Parser
 	}
 
 	/**
+	 * Perform block PHP substitution.
 	 *
+	 * @param array $pMatches
+	 * @return string
 	 */
-	private function replaceBlock( $pMatches )
+	private function replaceBlock( array $pMatches )
 	{
 		$block = $pMatches[1];
-		$this->blocks[ $pMatches[1] ];
-		$output = "<?php \${$block}_ary = [ \${$pMatches[1]}_vals ];\n"
+		$this->blocks[ $block ] = [];
+		$output = "<?php \${$block}_ary = [ \${$block}_vals ];\n"
 				. "foreach (\${$block}_ary as \${$block}_vars):\n"
 				. "\textract(\${$block}_vars); ?>"
 				. "{$pMatches[2]}"
-				. "<?php endforeach; // END {$pMatches[1]} ?>";
+				. "<?php endforeach; // END {$block} ?>";
 
 		return $output;
 	}

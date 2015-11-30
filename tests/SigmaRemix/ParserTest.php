@@ -28,9 +28,19 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * @covers ::__construct
+	 * @expectedException \InvalidArgumentException
+	 * @expectedExceptionMessage fake-dir is not a valid directory.
+	 */
+	public function test_should_throw_exception_when_second_parameters_is_an_invalid_dir()
+	{
+		$parser = new Parser( '{TEST_1}', 'fake-dir' );
+	}
+
+	/**
+	 * @covers ::process
 	 * @covers ::setPlaceholders
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::__construct
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::process
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::replaceIncludes
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setFunctions
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setBlocks
@@ -45,10 +55,10 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * @covers ::process
 	 * @covers ::setBlocks
 	 * @covers ::replaceBlock
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::__construct
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::process
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::replaceIncludes
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setPlaceholders
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setFunctions
@@ -72,8 +82,8 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @covers ::replaceIncludes
 	 * @covers ::replaceInclude
+	 * @covers ::process
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::__construct
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::process
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setPlaceholders
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setFunctions
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setBlocks
