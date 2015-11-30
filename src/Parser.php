@@ -23,8 +23,14 @@ class Parser
 	 * @param string $pTemplate Template to be parsed.
 	 * @param string $pIncludeTemplatesDir This path will be prefixed to the path in any INCLUDE tag during parsing.
 	 */
-	public function __construct($pTemplate, $pIncludeTemplatesDir)
+	public function __construct( $pTemplate, $pIncludeTemplatesDir = NULL )
 	{
+		if ( !\is_null($pIncludeTemplatesDir) && !is_dir($pIncludeTemplatesDir) )
+		{
+			// TODO: Implement ParserException, and store this message there, or refactor this.
+			throw new \InvalidArgumentException( $pIncludeTemplatesDir . ' is not a valid directory.' );
+		}
+
 		$this->template = $pTemplate;
 		$this->includeTemplatesDir = $pIncludeTemplatesDir;
 
@@ -57,37 +63,21 @@ class Parser
 		// 1. Replace all INCLUDE tags first, then process the whole template.
 		$parsed = $this->replaceIncludes( $parsed );
 
-		// 2. Parse all
+		// 2. Convert all placeholders to variables.
 		$parsed = $this->setPlaceholders( $parsed );
-//		$parsedTemplate = $this->setFunctions( $parsedTemplate );
 
-		// TODO: It's just too early to thing about this.
-		// Blocks are more difficult since they can be added or removed
-		// after the template is loaded (a.k.a compiled).
+		// TODO: Implement parsing functions.
+		// 3. Parse functions.
+		$parsed = $this->setFunctions( $parsed );
 
-//		$parsed = $this->getBlocks( $parsed );
+		// TODO: Take into consideration blocks that were added, removed, or replaced.
+
+		// 4. Replace all block tags. At this point all adding, removing, replacing blocks should have been done.
+		$parsed = $this->setBlocks( $parsed );
 
 		return $parsed;
 	}
 
-	/**
-	 * Return blocks withing a template.
-	 *
-	 * A block MUST have a begin and end tag, or it will be ignored.
-	 * <code>
-	 * <!-- BEGIN MY_BLOCK -->
-	 *   Place content here
-	 * <!-- END MY_BLOCK -->
-	 * </code>
-	 */
-	private function getBlocks( $pTemplate )
-	{
-		preg_match_all( $this->blockRegExp, $pTemplate, $regs, PREG_SET_ORDER );
-
-		var_dump($regs);
-//		$this->blocks[ $block ] = \preg_match( $this->blockRegEx, $pTemplate, $blockContent,)
-
-	}
 	/**
 	 * Recursively build a list of all blocks within the template.
 	 *
@@ -132,26 +122,52 @@ class Parser
 	/**
 	 * Get function calls withing template.
 	 */
-	private function getFunctions()
+	private function setFunctions( $pTemplate )
 	{
+		// TODO: Implement parsing functions.
+
+		return $pTemplate;
+	}
+
+	/**
+	 *
+	 */
+	private function replaceBlock( $pMatches )
+	{
+		$block = $pMatches[1];
+		$this->blocks[ $pMatches[1] ];
+		$output = "<?php \${$block}_ary = [ \${$pMatches[1]}_vals ];\n"
+				. "foreach (\${$block}_ary as \${$block}_vars):\n"
+				. "\textract(\${$block}_vars); ?>"
+				. "{$pMatches[2]}"
+				. "<?php endforeach; // END {$pMatches[1]} ?>";
+
+		return $output;
 	}
 
 	/**
 	 * Replace all includes with corresponding PHP.
+	 *
+	 * @param string $pTemplate Template to parse.
+	 * @return string
 	 */
-	private function replaceIncludes($pTemplate)
+	private function replaceIncludes( $pTemplate )
 	{
-		//\preg_match_all( $this->includeRegEx, $pContent, $matches, \PREG_SET_ORDER );
 		$output = \preg_replace_callback(
 				$this->includeRegEx,
-				[$this, 'replaceInclude'],
+				[ $this, 'replaceInclude' ],
 				$pTemplate
 		);
 
 		return $output;
 	}
 
-
+	/**
+	 * Replace INCLUDE tag with content from the file path it provides.
+	 *
+	 * @param $matches
+	 * @return string
+	 */
 	private function replaceInclude( $matches )
 	{
 		$content = '';
@@ -166,13 +182,38 @@ class Parser
 	}
 
 	/**
-	 * Get placeholder in a template.
+	 * Replace blocks in a template with the PHP counter part.
+	 *
+	 * A block MUST have a begin and end tag, or it will be ignored.
+	 * <code>
+	 * <!-- BEGIN MY_BLOCK -->
+	 *   Place content here
+	 * <!-- END MY_BLOCK -->
+	 * </code>
+	 *
+	 * @param string $pTemplate Template to parse.
+	 * @return string
 	 */
-	private function setPlaceholders($pContent)
+	private function setBlocks( $pTemplate )
 	{
-		\preg_match_all( $this->placeholderRegEx, $pContent, $matches, \PREG_SET_ORDER );
+		preg_match_all( $this->blockRegExp, $pTemplate, $regs, PREG_SET_ORDER );
 
-		$output = \preg_replace( $this->placeholderRegEx, '\$$1', $pContent );
+		$output = \preg_replace_callback( $this->blockRegExp, [$this, 'replaceBlock'], $pTemplate );
+
+		return $output;
+	}
+
+	/**
+	 * Get placeholder in a template.
+	 *
+	 * @param string $pTemplate
+	 * @return string
+	 */
+	private function setPlaceholders( $pTemplate )
+	{
+		\preg_match_all( $this->placeholderRegEx, $pTemplate, $matches, \PREG_SET_ORDER );
+
+		$output = \preg_replace( $this->placeholderRegEx, '\$$1', $pTemplate );
 
 		return $output;
 	}

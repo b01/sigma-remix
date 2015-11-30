@@ -32,6 +32,8 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::__construct
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::process
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::replaceIncludes
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setBlocks
 	 */
 	public function test_parsing_placeholders()
 	{
@@ -41,13 +43,31 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('$TEST_1', $data );
 		$this->assertNotContains('{TEST_1}', $data );
 	}
-//
-//	public function test_parsing_block_with_just_text()
-//	{
-//		$template = $this->templateDir . DIRECTORY_SEPARATOR . 'block-1.html';
-//		$parser = new Parser($template);
-//		$data = $parser->process();
-//	}
+
+	/**
+	 * @covers ::setBlocks
+	 * @covers ::replaceBlock
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::process
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::replaceIncludes
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setFunctions
+	 */
+	public function test_parsing_block_with_just_text()
+	{
+		$template = \file_get_contents(
+				$this->templateDir . DIRECTORY_SEPARATOR . 'block-1.html'
+		);
+
+		$parser = new Parser( $template, NULL );
+
+		$data = $parser->process();
+
+		$this->assertContains( '$BLOCK_1_ary = [ $BLOCK_1_vals ];', $data );
+		$this->assertContains( 'foreach ($BLOCK_1_ary as $BLOCK_1_vars):', $data );
+		$this->assertContains( 'extract($BLOCK_1_vars);', $data );
+		$this->assertContains( 'endforeach; // END BLOCK_1', $data );
+	}
 
 	/**
 	 * @covers ::replaceIncludes
@@ -55,6 +75,8 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::__construct
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::process
 	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setBlocks
 	 */
 	public function test_parsing_an_include_tag()
 	{
