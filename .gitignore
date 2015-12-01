@@ -2,7 +2,7 @@
 #-----------
 /.idea/
 /cache/
-/test/cache/
+/tests/fixtures/cache/
 /vendor/
 
 

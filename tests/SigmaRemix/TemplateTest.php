@@ -77,5 +77,50 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	{
 		Template::setCacheDir( 'bad-directory-name' );
 	}
+
+	/**
+	 * @covers ::compile
+	 * @uses \Kshabazz\Web\SigmaRemix\Template::__construct
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser
+	 */
+	public function test_loading_a_template_with_one_placeholder()
+	{
+		$template = new Template( $this->templateDir . DIRECTORY_SEPARATOR . 'placeholders-1.html' );
+		$compiled = $template->compile();
+		$this->assertContains( '$TEST_1', $compiled );
+
+		return $template;
+	}
+
+	/**
+	 * @covers ::save
+	 * @uses \Kshabazz\Web\SigmaRemix\Template::setCacheDir
+	 * @depends test_loading_a_template_with_one_placeholder
+	 */
+	public function test_should_save_complied_template( Template $pTemplate )
+	{
+		$cacheDir = $this->templateDir . DIRECTORY_SEPARATOR . 'cache';
+
+		Template::setCacheDir( $cacheDir );
+
+		$this->assertTrue( $pTemplate->save() );
+		$this->assertTrue( \file_exists($cacheDir . DIRECTORY_SEPARATOR . 'placeholders-1.html.php') );
+	}
+
+	/**
+	 * @covers ::setPlaceholders
+	 * @covers ::getPlaceholders
+	 * @uses \Kshabazz\Web\SigmaRemix\Template::__construct
+	 */
+	public function test_should_set_a_placeholder()
+	{
+		$template = new Template(
+				$this->templateDir . DIRECTORY_SEPARATOR . 'placeholders-1.html'
+		);
+
+		$template->setPlaceholders([ 'TEST_1' => 1234 ]);
+
+		$this->assertEquals(1234, $template->getPlaceholders()['TEST_1'] );
+	}
 }
 ?>
