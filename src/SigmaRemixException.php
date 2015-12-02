@@ -1,9 +1,9 @@
-<?php namespace Kshabazz\Web\SigmaRemix;
+<?php namespace Kshabazz\SigmaRemix;
 
 /**
  * Class SigmaRemixException
  *
- * @package Kshabazz\Web\SigmaRemix
+ * @package Kshabazz\SigmaRemix
  */
 abstract class SigmaRemixException extends \Exception
 {

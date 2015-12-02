@@ -1,19 +1,19 @@
-<?php namespace Kshabazz\Web\SigmaRemix\Tests;
+<?php namespace Kshabazz\SigmaRemix\Tests;
 
-use Kshabazz\Web\SigmaRemix\TemplateException;
+use Kshabazz\SigmaRemix\TemplateException;
 
 
 /**
  * Class TemplateExceptionTest
  *
- * @package \Kshabazz\Web\SigmaRemix\Tests
- * @coversDefaultClass \Kshabazz\Web\SigmaRemix\TemplateException
+ * @package \Kshabazz\SigmaRemix\Tests
+ * @coversDefaultClass \Kshabazz\SigmaRemix\TemplateException
  */
 class TemplateExceptionTest extends \PHPUnit_Framework_TestCase
 {
 
 	/**
-	 * @expectedException \Kshabazz\Web\SigmaRemix\TemplateException
+	 * @expectedException \Kshabazz\SigmaRemix\TemplateException
 	 * @expectedExceptionMessage The template "test" does not exists
 	 * @expectedExceptionCode 1
 	 * @covers ::__construct

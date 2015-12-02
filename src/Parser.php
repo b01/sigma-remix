@@ -1,9 +1,9 @@
-<?php namespace Kshabazz\Web\SigmaRemix;
+<?php namespace Kshabazz\SigmaRemix;
 
 /**
  * Class Parser
  *
- * @package Kshabazz\Web\SigmaRemix
+ * @package Kshabazz\SigmaRemix
  */
 class Parser
 {

@@ -1,4 +1,4 @@
-<?php namespace Kshabazz\Web\SigmaRemix\Tests;
+<?php namespace Kshabazz\SigmaRemix\Tests;
 
 require_once(__DIR__
 	. DIRECTORY_SEPARATOR . '..'

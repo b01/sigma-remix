@@ -1,9 +1,9 @@
-<?php namespace Kshabazz\Web\SigmaRemix;
+<?php namespace Kshabazz\SigmaRemix;
 
 /**
  * Class TemplateException
  *
- * @package \Kshabazz\Web\SigmaRemix
+ * @package \Kshabazz\SigmaRemix
  */
 class TemplateException extends SigmaRemixException
 {

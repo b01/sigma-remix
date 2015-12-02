@@ -1,12 +1,12 @@
-<?php namespace Kshabazz\Web\SigmaRemix\Tests;
+<?php namespace Kshabazz\SigmaRemix\Tests;
 
-use Kshabazz\Web\SigmaRemix\Parser;
+use Kshabazz\SigmaRemix\Parser;
 
 /**
  * Class ParserTest
  *
- * @package \Kshabazz\Web\SigmaRemix\Tests
- * @coversDefaultClass \Kshabazz\Web\SigmaRemix\Parser
+ * @package \Kshabazz\SigmaRemix\Tests
+ * @coversDefaultClass \Kshabazz\SigmaRemix\Parser
  */
 class ParserTest extends \PHPUnit_Framework_TestCase
 {
@@ -24,7 +24,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	{
 		$parser = new Parser( '{TEST_1}', NULL );
 
-		$this->assertInstanceOf( '\\Kshabazz\\Web\\SigmaRemix\\Parser' , $parser );
+		$this->assertInstanceOf( '\\Kshabazz\\SigmaRemix\\Parser' , $parser );
 	}
 
 	/**
@@ -40,10 +40,10 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @covers ::process
 	 * @covers ::setPlaceholders
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::__construct
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::replaceIncludes
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setFunctions
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser::replaceIncludes
+	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
 	 */
 	public function test_parsing_placeholders()
 	{
@@ -58,10 +58,10 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @covers ::process
 	 * @covers ::setBlocks
 	 * @covers ::replaceBlock
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::__construct
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::replaceIncludes
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setPlaceholders
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser::replaceIncludes
+	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 */
 	public function test_parsing_block_with_just_text()
 	{
@@ -84,10 +84,10 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @covers ::process
 	 * @covers ::setBlocks
 	 * @covers ::replaceBlock
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::__construct
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::replaceIncludes
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setPlaceholders
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser::replaceIncludes
+	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 */
 	public function test_should_parse_two_consecutive_blocks()
 	{
@@ -116,10 +116,10 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @covers ::process
 	 * @covers ::setBlocks
 	 * @covers ::replaceBlock
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::__construct
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::replaceIncludes
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setPlaceholders
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser::replaceIncludes
+	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 */
 	public function test_should_parse_nested_blocks()
 	{
@@ -154,10 +154,10 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @covers ::replaceIncludes
 	 * @covers ::replaceInclude
 	 * @covers ::process
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::__construct
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setPlaceholders
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setFunctions
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser::setBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
 	 */
 	public function test_parsing_an_include_tag()
 	{

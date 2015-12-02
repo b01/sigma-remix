@@ -1,9 +1,9 @@
-<?php namespace Kshabazz\Web\SigmaRemix;
+<?php namespace Kshabazz\SigmaRemix;
 
 /**
  * Class Processor
  *
- * @package \Kshabazz\Web\SigmaRemix
+ * @package \Kshabazz\SigmaRemix
  */
 class Template
 {
@@ -136,7 +136,7 @@ class Template
 	 *
 	 * @param string $pCacheDir Template cache directory.
 	 * @return TRUE
-	 * @throws \Kshabazz\Web\SigmaRemix\TemplateException
+	 * @throws \Kshabazz\SigmaRemix\TemplateException
 	 */
 	static public function setCacheDir( $pCacheDir )
 	{
@@ -157,7 +157,7 @@ class Template
 	 * @see ::compile
 	 * @param string $pTemplateRoot Root location to look for templates.
 	 * @return bool
-	 * @throws \Kshabazz\Web\SigmaRemix\TemplateException
+	 * @throws \Kshabazz\SigmaRemix\TemplateException
 	 */
 	static public function setRootDir( $pTemplateRoot )
 	{

@@ -1,12 +1,12 @@
-<?php namespace Kshabazz\Web\SigmaRemix\Tests;
+<?php namespace Kshabazz\SigmaRemix\Tests;
 
-use Kshabazz\Web\SigmaRemix\Template;
+use Kshabazz\SigmaRemix\Template;
 
 /**
  * Class TemplateTest
  *
- * @package \Kshabazz\Web\SigmaRemix\Tests
- * @coversDefaultClass \Kshabazz\Web\SigmaRemix\Template
+ * @package \Kshabazz\SigmaRemix\Tests
+ * @coversDefaultClass \Kshabazz\SigmaRemix\Template
  */
 class TemplateTest extends \PHPUnit_Framework_TestCase
 {
@@ -24,14 +24,14 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	{
 		$processor = new Template($this->templateDir . DIRECTORY_SEPARATOR . 'placeholders-1.html');
 
-		$this->assertInstanceOf('\\Kshabazz\\Web\\SigmaRemix\\Template', $processor);
+		$this->assertInstanceOf('\\Kshabazz\\SigmaRemix\\Template', $processor);
 	}
 
 	/**
-	 * @expectedException \Kshabazz\Web\SigmaRemix\TemplateException
+	 * @expectedException \Kshabazz\SigmaRemix\TemplateException
 	 * @expectedExceptionMessage The template "test" does not exists
 	 * @covers ::__construct
-	 * @uses \Kshabazz\Web\SigmaRemix\SigmaRemixException
+	 * @uses \Kshabazz\SigmaRemix\SigmaRemixException
 	 *
 	 */
 	public function test_construct_with_bad_file()
@@ -41,7 +41,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @covers ::setRootDir
-	 * @uses \Kshabazz\Web\SigmaRemix\Template::__construct
+	 * @uses \Kshabazz\SigmaRemix\Template::__construct
 	 */
 	public function test_set_template_root_directory()
 	{
@@ -51,15 +51,15 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 
 		Template::setRootDir( NULL );
 
-		$this->assertInstanceOf('\\Kshabazz\\Web\\SigmaRemix\\Template', $processor);
+		$this->assertInstanceOf('\\Kshabazz\\SigmaRemix\\Template', $processor);
 	}
 
 	/**
-	 * @expectedException \Kshabazz\Web\SigmaRemix\TemplateException
+	 * @expectedException \Kshabazz\SigmaRemix\TemplateException
 	 * @expectedExceptionMessage Attempt to set template root directory to "bad-directory-name", which does not exists.
 	 * @covers ::setRootDir
-	 * @uses \Kshabazz\Web\SigmaRemix\Template::__construct
-	 * @uses \Kshabazz\Web\SigmaRemix\SigmaRemixException
+	 * @uses \Kshabazz\SigmaRemix\Template::__construct
+	 * @uses \Kshabazz\SigmaRemix\SigmaRemixException
 	 */
 	public function test_set_bad_template_root_directory()
 	{
@@ -67,11 +67,11 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException \Kshabazz\Web\SigmaRemix\TemplateException
+	 * @expectedException \Kshabazz\SigmaRemix\TemplateException
 	 * @expectedExceptionMessage Attempt to set cache directory to "bad-directory-name", which does not exists.
 	 * @covers ::setCacheDir
-	 * @uses \Kshabazz\Web\SigmaRemix\Template::__construct
-	 * @uses \Kshabazz\Web\SigmaRemix\SigmaRemixException
+	 * @uses \Kshabazz\SigmaRemix\Template::__construct
+	 * @uses \Kshabazz\SigmaRemix\SigmaRemixException
 	 */
 	public function test_set_bad_cache_directory()
 	{
@@ -80,8 +80,8 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @covers ::compile
-	 * @uses \Kshabazz\Web\SigmaRemix\Template::__construct
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser
+	 * @uses \Kshabazz\SigmaRemix\Template::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser
 	 */
 	public function test_loading_a_template_with_one_placeholder()
 	{
@@ -94,7 +94,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @covers ::save
-	 * @uses \Kshabazz\Web\SigmaRemix\Template::setCacheDir
+	 * @uses \Kshabazz\SigmaRemix\Template::setCacheDir
 	 * @depends test_loading_a_template_with_one_placeholder
 	 */
 	public function test_should_save_complied_template( Template $pTemplate )
@@ -110,7 +110,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @covers ::setPlaceholders
 	 * @covers ::getPlaceholders
-	 * @uses \Kshabazz\Web\SigmaRemix\Template::__construct
+	 * @uses \Kshabazz\SigmaRemix\Template::__construct
 	 */
 	public function test_should_set_a_placeholder()
 	{
@@ -125,9 +125,9 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @covers ::parseBlock
-	 * @uses \Kshabazz\Web\SigmaRemix\Template::__construct
-	 * @uses \Kshabazz\Web\SigmaRemix\Template::compile
-	 * @uses \Kshabazz\Web\SigmaRemix\Parser
+	 * @uses \Kshabazz\SigmaRemix\Template::__construct
+	 * @uses \Kshabazz\SigmaRemix\Template::compile
+	 * @uses \Kshabazz\SigmaRemix\Parser
 	 */
 	public function test_should_parse_a_block()
 	{

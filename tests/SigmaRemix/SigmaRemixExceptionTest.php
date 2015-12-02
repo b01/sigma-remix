@@ -1,18 +1,18 @@
-<?php namespace Kshabazz\Web\SigmaRemix\Tests;
+<?php namespace Kshabazz\SigmaRemix\Tests;
 
-use Kshabazz\Web\SigmaRemix\SigmaRemixException;
+use Kshabazz\SigmaRemix\SigmaRemixException;
 
 
 /**
  * Class SigmaRemixExceptionTest
  *
- * @package \Kshabazz\Web\SigmaRemix\Tests
- * @coversDefaultClass \Kshabazz\Web\SigmaRemix\SigmaRemixException
+ * @package \Kshabazz\SigmaRemix\Tests
+ * @coversDefaultClass \Kshabazz\SigmaRemix\SigmaRemixException
  */
 class SigmaRemixExceptionTest extends \PHPUnit_Framework_TestCase
 {
 	/**
-	 * @expectedException \Kshabazz\Web\SigmaRemix\SigmaRemixException
+	 * @expectedException \Kshabazz\SigmaRemix\SigmaRemixException
 	 * @expectedExceptionMessage An unknown error occurred
 	 * @expectedExceptionCode 1
 	 * @covers ::__construct
@@ -21,7 +21,7 @@ class SigmaRemixExceptionTest extends \PHPUnit_Framework_TestCase
 	public function test_unknown_error()
 	{
 		$exceptionMock = $this->getMockForAbstractClass(
-				'\\Kshabazz\\Web\\SigmaRemix\\SigmaRemixException',
+				'\\Kshabazz\\SigmaRemix\\SigmaRemixException',
 				[1]
 		);
 
@@ -29,16 +29,16 @@ class SigmaRemixExceptionTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException \Kshabazz\Web\SigmaRemix\SigmaRemixException
+	 * @expectedException \Kshabazz\SigmaRemix\SigmaRemixException
 	 * @expectedExceptionMessage An unknown error occurred
 	 * @expectedExceptionCode -1
-	 * @uses \Kshabazz\Web\SigmaRemix\SigmaRemixException::__construct
+	 * @uses \Kshabazz\SigmaRemix\SigmaRemixException::__construct
 	 * @covers ::getMessageByCode
 	 */
 	public function test_unset_error_code()
 	{
 		$exceptionMock = $this->getMockForAbstractClass(
-				'\\Kshabazz\\Web\\SigmaRemix\\SigmaRemixException', [-1]
+				'\\Kshabazz\\SigmaRemix\\SigmaRemixException', [-1]
 		);
 
 		throw $exceptionMock;
@@ -54,7 +54,7 @@ class SigmaRemixExceptionTest extends \PHPUnit_Framework_TestCase
 	public function test_bad_custom_message()
 	{
 		$exceptionMock = $this->getMockForAbstractClass(
-				'\\Kshabazz\\Web\\SigmaRemix\\SigmaRemixException',
+				'\\Kshabazz\\SigmaRemix\\SigmaRemixException',
 				[1, NULL, 404]
 		);
 
@@ -62,7 +62,7 @@ class SigmaRemixExceptionTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException \Kshabazz\Web\SigmaRemix\SigmaRemixException
+	 * @expectedException \Kshabazz\SigmaRemix\SigmaRemixException
 	 * @expectedExceptionMessage test error message 1
 	 * @expectedExceptionCode 1
 	 * @covers ::__construct
@@ -71,7 +71,7 @@ class SigmaRemixExceptionTest extends \PHPUnit_Framework_TestCase
 	public function test_good_custom_message()
 	{
 		$exceptionMock = $this->getMockForAbstractClass(
-				'\\Kshabazz\\Web\\SigmaRemix\\SigmaRemixException',
+				'\\Kshabazz\\SigmaRemix\\SigmaRemixException',
 				[1, [1], 'test error message %s']
 		);
 
