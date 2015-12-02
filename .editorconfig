@@ -1,2 +1,8 @@
-[*.txt]
+[*.txt, *.md]
 trim_trailing_whitespace = false
+
+[*.{js,html,php,scss}]
+charset = utf-8
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
