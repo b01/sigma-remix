@@ -18,6 +18,8 @@ class Template
 	static private $rootDir = '';
 
 	private
+		/** @var array Placeholders exclusively set for within a block */
+		$blockPlaceholders,
 		/** @var string Compiled PHP template. */
 		$compiledTemplate,
 		/** @var array Placeholder values. */
@@ -36,16 +38,29 @@ class Template
 		{
 			throw new TemplateException( TemplateException::BAD_TEMPLATE_FILE, [$this->templateFile] );
 		}
+
+		$this->blockPlaceholders = [];
 	}
 
+	/**
+	 * Compile the template to PHP.
+	 *
+	 * @return string
+	 */
 	public function compile()
 	{
-		// Load the template.
+		// 1. Load the template.
 		$template = \file_get_contents( $this->templateFile );
 
+		// 2. Compile the template.
 		$parser = new Parser($template);
 
-		$this->compiledTemplate = $parser->process();
+		$compiledTemplate = $parser->process();
+
+		// 3. Convert blockVars to PHP code.
+		$blockPlaceholders = var_export( $this->blockPlaceholders, TRUE );
+		// 4. Set variables to fill in placeholders when the template is rendered.
+		$this->compiledTemplate = 'export(' . $blockPlaceholders . ");\n" . $compiledTemplate;
 
 		return $this->compiledTemplate;
 	}
@@ -58,6 +73,27 @@ class Template
 	public function getPlaceholders()
 	{
 		return $this->placeholders;
+	}
+
+	/**
+	 * Iterate over a block, setting optional placeholders.
+	 *
+	 * @param $pBlock
+	 * @param array $pVars
+	 * @return bool TRUE
+	 */
+	public function parseBlock( $pBlock, array $pPlaceholders = [] )
+	{
+		$blockCName = '$' . $pBlock . '_ary';
+
+		if ( !\array_key_exists($blockCName, $this->blockPlaceholders) )
+		{
+			$this->blockPlaceholders[ $blockCName ] = [];
+		}
+
+		$this->blockPlaceholders[ $blockCName ][] = $pPlaceholders;
+
+		return TRUE;
 	}
 
 	/**

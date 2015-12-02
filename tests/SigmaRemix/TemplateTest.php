@@ -120,7 +120,34 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 
 		$template->setPlaceholders([ 'TEST_1' => 1234 ]);
 
-		$this->assertEquals(1234, $template->getPlaceholders()['TEST_1'] );
+		$this->assertEquals( 1234, $template->getPlaceholders()['TEST_1'] );
+	}
+
+	/**
+	 * @covers ::parseBlock
+	 * @uses \Kshabazz\Web\SigmaRemix\Template::__construct
+	 * @uses \Kshabazz\Web\SigmaRemix\Template::compile
+	 * @uses \Kshabazz\Web\SigmaRemix\Parser
+	 */
+	public function test_should_parse_a_block()
+	{
+		$template = new Template(
+				$this->templateDir . DIRECTORY_SEPARATOR . 'block-1.html'
+		);
+
+		// This should cause the block to repeat it's content 3 times.
+		for ( $i = 0; $i < 3; $i++ )
+		{
+			$template->parseBlock('BLOCK_1');
+		}
+
+		$compiled = $template->compile();
+
+		$expected = \file_get_contents(
+			$this->templateDir . DIRECTORY_SEPARATOR . 'expected-output-1.txt'
+		);
+
+		$this->assertContains( $expected, $compiled );
 	}
 }
 ?>
