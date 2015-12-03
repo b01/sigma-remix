@@ -81,13 +81,16 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @covers ::compile
 	 * @uses \Kshabazz\SigmaRemix\Template::__construct
+	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Template::render
+	 * @uses \Kshabazz\SigmaRemix\Template::save
 	 * @uses \Kshabazz\SigmaRemix\Parser
 	 */
 	public function test_loading_a_template_with_one_placeholder()
 	{
 		$template = new Template( $this->templateDir . DIRECTORY_SEPARATOR . 'placeholders-1.html' );
-		$compiled = $template->compile();
-		$this->assertContains( '$TEST_1', $compiled );
+		$compiled = $template->render([ 'TEST_1' => '4321' ]);
+		$this->assertEquals( '4321', $compiled );
 
 		return $template;
 	}
@@ -115,7 +118,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	public function test_should_set_a_placeholder()
 	{
 		$template = new Template(
-				$this->templateDir . DIRECTORY_SEPARATOR . 'placeholders-1.html'
+			$this->templateDir . DIRECTORY_SEPARATOR . 'placeholders-1.html'
 		);
 
 		$template->setPlaceholders([ 'TEST_1' => 1234 ]);
@@ -127,27 +130,47 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	 * @covers ::parseBlock
 	 * @uses \Kshabazz\SigmaRemix\Template::__construct
 	 * @uses \Kshabazz\SigmaRemix\Template::compile
+	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Template::render
 	 * @uses \Kshabazz\SigmaRemix\Parser
 	 */
 	public function test_should_parse_a_block()
 	{
 		$template = new Template(
-				$this->templateDir . DIRECTORY_SEPARATOR . 'block-1.html'
+			$this->templateDir . DIRECTORY_SEPARATOR . 'block-1.html'
 		);
 
 		// This should cause the block to repeat it's content 3 times.
-		for ( $i = 0; $i < 3; $i++ )
+		for ( $i = 0; $i < 2; $i++ )
 		{
 			$template->parseBlock('BLOCK_1');
 		}
 
-		$compiled = $template->compile();
+		$actual = $template->render();
 
 		$expected = \file_get_contents(
 			$this->templateDir . DIRECTORY_SEPARATOR . 'expected-output-1.txt'
 		);
 
-		$this->assertContains( $expected, $compiled );
+		$this->assertContains( $expected, $actual );
+	}
+
+	/**
+	 * @covers ::render
+	 * @uses \Kshabazz\SigmaRemix\Template::__construct
+	 * @uses \Kshabazz\SigmaRemix\Template::compile
+	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser
+	 */
+	public function test_should_render_a_template()
+	{
+		$template = new Template(
+			$this->templateDir . DIRECTORY_SEPARATOR . 'placeholders-1.html'
+		);
+
+		$actual = $template->render([ 'TEST_1' => 1234 ]);
+
+		$this->assertEquals( 1234, $actual );
 	}
 }
 ?>

@@ -38,10 +38,11 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @covers ::process
 	 * @covers ::setPlaceholders
+	 * @covers ::replacePlaceholder
 	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
-	 * @uses \Kshabazz\SigmaRemix\Parser::replaceIncludes
+	 * @uses \Kshabazz\SigmaRemix\Parser::process
+	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
 	 */
@@ -50,7 +51,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 		$parser = new Parser('{TEST_1}', NULL);
 		$data = $parser->process();
 
-		$this->assertEquals('$TEST_1', $data );
+		$this->assertEquals('<?= $TEST_1; ?>', $data );
 		$this->assertNotContains('{TEST_1}', $data );
 	}
 
@@ -59,7 +60,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @covers ::setBlocks
 	 * @covers ::replaceBlock
 	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
-	 * @uses \Kshabazz\SigmaRemix\Parser::replaceIncludes
+	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
 	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 */
@@ -73,8 +74,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
 		$data = $parser->process();
 
-		$expected = "\$BLOCK_1_ary = [ \$BLOCK_1_vals ];\n"
-			. "foreach (\$BLOCK_1_ary as \$BLOCK_1_vars):\n"
+		$expected = "foreach (\$BLOCK_1_ary as \$BLOCK_1_vars):\n"
 			. "\textract(\$BLOCK_1_vars); ?>";
 		$this->assertContains( $expected, $data );
 		$this->assertContains( 'endforeach; // END BLOCK_1', $data );
@@ -85,7 +85,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @covers ::setBlocks
 	 * @covers ::replaceBlock
 	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
-	 * @uses \Kshabazz\SigmaRemix\Parser::replaceIncludes
+	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
 	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 */
@@ -99,14 +99,12 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
 		$data = $parser->process();
 
-		$expected = "\$BLOCK_1_ary = [ \$BLOCK_1_vals ];\n"
-				. "foreach (\$BLOCK_1_ary as \$BLOCK_1_vars):\n"
+		$expected = "foreach (\$BLOCK_1_ary as \$BLOCK_1_vars):\n"
 				. "\textract(\$BLOCK_1_vars); ?>";
 		$this->assertContains( $expected, $data );
 		$this->assertContains( 'endforeach; // END BLOCK_1', $data );
 
-		$expected = "\$BLOCK_2_ary = [ \$BLOCK_2_vals ];\n"
-				. "foreach (\$BLOCK_2_ary as \$BLOCK_2_vars):\n"
+		$expected = "foreach (\$BLOCK_2_ary as \$BLOCK_2_vars):\n"
 				. "\textract(\$BLOCK_2_vars); ?>";
 		$this->assertContains( $expected, $data );
 		$this->assertContains( 'endforeach; // END BLOCK_1', $data );
@@ -117,7 +115,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @covers ::setBlocks
 	 * @covers ::replaceBlock
 	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
-	 * @uses \Kshabazz\SigmaRemix\Parser::replaceIncludes
+	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
 	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 */
@@ -131,33 +129,31 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
 		$data = $parser->process();
 
-		$expected = "\$BLOCK_1_ary = [ \$BLOCK_1_vals ];\n"
-				. "foreach (\$BLOCK_1_ary as \$BLOCK_1_vars):\n"
+		$expected = "foreach (\$BLOCK_1_ary as \$BLOCK_1_vars):\n"
 				. "\textract(\$BLOCK_1_vars); ?>";
 		$this->assertContains( $expected, $data );
 		$this->assertContains( 'endforeach; // END BLOCK_1', $data );
 
-		$expected = "\$BLOCK_2_ary = [ \$BLOCK_2_vals ];\n"
-				. "foreach (\$BLOCK_2_ary as \$BLOCK_2_vars):\n"
+		$expected = "foreach (\$BLOCK_2_ary as \$BLOCK_2_vars):\n"
 				. "\textract(\$BLOCK_2_vars); ?>";
 		$this->assertContains( $expected, $data );
 		$this->assertContains( 'endforeach; // END BLOCK_1', $data );
 
-		$expected = "\$NESTED_BLOCK_1_ary = [ \$NESTED_BLOCK_1_vals ];\n"
-				. "foreach (\$NESTED_BLOCK_1_ary as \$NESTED_BLOCK_1_vars):\n"
+		$expected = "foreach (\$NESTED_BLOCK_1_ary as \$NESTED_BLOCK_1_vars):\n"
 				. "\textract(\$NESTED_BLOCK_1_vars); ?>";
 		$this->assertContains( $expected, $data );
 		$this->assertContains( 'endforeach; // END NESTED_BLOCK_1', $data );
 	}
 
 	/**
-	 * @covers ::replaceIncludes
+	 * @covers ::setIncludes
 	 * @covers ::replaceInclude
 	 * @covers ::process
 	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
 	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::replacePlaceholder
 	 */
 	public function test_parsing_an_include_tag()
 	{

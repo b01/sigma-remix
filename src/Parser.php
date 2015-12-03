@@ -14,7 +14,7 @@ class Parser
 		$includeRegEx,
 		$placeholders,
 		$placeholderRegEx,
-		/** @var strig Directory where load include templates */
+		/** @var string Directory where load include templates */
 		$includeTemplatesDir;
 
 	/**
@@ -31,37 +31,45 @@ class Parser
 			throw new \InvalidArgumentException( $pIncludeTemplatesDir . ' is not a valid directory.' );
 		}
 
-		$this->template = $pTemplate;
-		$this->includeTemplatesDir = $pIncludeTemplatesDir;
-
-		$functionNameChars = '[_a-zA-Z][A-Za-z_0-9]*';
-
 		$this->blockRegExp = '@<!--\s+BEGIN\s+([0-9A-Za-z_-]+)\s+-->'
 			. '(.*)'
 			. '<!--\s+END\s+\1\s+-->@sm';
-
+		$this->blocks = [];
+		$this->includeRegEx = '#<!--\s+INCLUDE\s+(\S+)\s+-->#im';
+		$this->includeTemplatesDir = $pIncludeTemplatesDir;
+		$functionNameChars = '[_a-zA-Z][A-Za-z_0-9]*';
 		$this->functionRegEx = \sprintf(
 			'@func_(%s)\s*\(@sm',
 			$functionNameChars
 		);
-
-		$this->includeRegEx = '#<!--\s+INCLUDE\s+(\S+)\s+-->#im';
-
 		$this->placeholderRegEx = \sprintf(
 			'@{([0-9A-Za-z._-]+)(:(%s))?}@sm',
 			$functionNameChars
 		);
+		$this->placeholders = [];
+		$this->template = $pTemplate;
 	}
 
 	/**
+	 * Get block names parsed.
+	 * @return mixed
+	 */
+	public function getBlocks()
+	{
+		return $this->blocks;
+	}
+
+	/**
+	 *Parse the template, converting various parts to PHP.
 	 *
+	 * @return string
 	 */
 	public function process()
 	{
 		$parsed = $this->template;
 
 		// 1. Replace all INCLUDE tags first, then process the whole template.
-		$parsed = $this->replaceIncludes( $parsed );
+		$parsed = $this->setIncludes( $parsed );
 
 		// 2. Convert all placeholders to variables.
 		$parsed = $this->setPlaceholders( $parsed );
@@ -98,11 +106,18 @@ class Parser
 	private function replaceBlock( array $pMatches )
 	{
 		$block = $pMatches[1];
-		$blockContent = \preg_replace_callback( $this->blockRegExp, [$this, 'replaceBlock'], $pMatches[2] );
-//		var_dump($blockContent);
-		$this->blocks[ $block ] = [];
-		$output = "<?php \${$block}_ary = [ \${$block}_vals ];\n"
-				. "foreach (\${$block}_ary as \${$block}_vars):\n"
+
+		// Recursively parse nested blocks.
+		$blockContent = \preg_replace_callback(
+			$this->blockRegExp,
+			[ $this, 'replaceBlock' ],
+			$pMatches[2]
+		);
+
+		// Build a list of all blocks found.
+		$this->blocks[] = $block;
+
+		$output = "<?php foreach (\${$block}_ary as \${$block}_vars):\n"
 				. "\textract(\${$block}_vars); ?>"
 				. "{$blockContent}"
 				. "<?php endforeach; // END {$block} ?>";
@@ -111,12 +126,28 @@ class Parser
 	}
 
 	/**
+	 * Perform placeholder substitution.
+	 *
+	 * @param array $match
+	 * @return string
+	 */
+	private function replacePlaceholder( array $match )
+	{
+		$placeholder = $match[1];
+
+		// Build a list of all placeholders found.
+		$this->placeholders[] = $placeholder;
+
+		return '<?= $' . $placeholder . '; ?>';
+	}
+
+	/**
 	 * Replace all includes with corresponding PHP.
 	 *
 	 * @param string $pTemplate Template to parse.
 	 * @return string
 	 */
-	private function replaceIncludes( $pTemplate )
+	private function setIncludes( $pTemplate )
 	{
 		$output = \preg_replace_callback(
 				$this->includeRegEx,
@@ -161,8 +192,6 @@ class Parser
 	 */
 	private function setBlocks( $pTemplate )
 	{
-		preg_match_all( $this->blockRegExp, $pTemplate, $regs, PREG_SET_ORDER );
-
 		$output = \preg_replace_callback( $this->blockRegExp, [$this, 'replaceBlock'], $pTemplate );
 
 		return $output;
@@ -176,9 +205,11 @@ class Parser
 	 */
 	private function setPlaceholders( $pTemplate )
 	{
-		\preg_match_all( $this->placeholderRegEx, $pTemplate, $matches, \PREG_SET_ORDER );
-
-		$output = \preg_replace( $this->placeholderRegEx, '\$$1', $pTemplate );
+		$output = \preg_replace_callback(
+			$this->placeholderRegEx,
+			[$this, 'replacePlaceholder'],
+			$pTemplate
+		);
 
 		return $output;
 	}

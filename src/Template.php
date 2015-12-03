@@ -22,6 +22,8 @@ class Template
 		$blockPlaceholders,
 		/** @var string Compiled PHP template. */
 		$compiledTemplate,
+		/** @var Parser */
+		$parser,
 		/** @var array Placeholder values. */
 		$placeholders,
 		/** @var string File path to the template. */
@@ -46,23 +48,44 @@ class Template
 	 * Compile the template to PHP.
 	 *
 	 * @return string
+	 * TODO: Make private.
 	 */
-	public function compile()
+	private function compile()
 	{
-		// 1. Load the template.
+		// Load the template.
 		$template = \file_get_contents( $this->templateFile );
 
-		// 2. Compile the template.
-		$parser = new Parser($template);
+		$this->parser = new Parser($template);
 
-		$compiledTemplate = $parser->process();
+		// Compile the template.
+		$compileTemplate = $this->parser->process();
 
-		// 3. Convert blockVars to PHP code.
-		$blockPlaceholders = var_export( $this->blockPlaceholders, TRUE );
-		// 4. Set variables to fill in placeholders when the template is rendered.
-		$this->compiledTemplate = 'export(' . $blockPlaceholders . ");\n" . $compiledTemplate;
+		// Add any blocks to parsed blocks so that their variables get set, this is good for blocks that do not get
+		// parsed.
+		$blocks = $this->parser->getBlocks();
 
-		return $this->compiledTemplate;
+		foreach ($blocks as $block )
+		{
+			$this->parseBlock($block, []);
+		}
+
+		return $compileTemplate;
+	}
+
+	/**
+	 * Convert placeholders to PHP code.
+	 *
+	 * Will be prefixed to compiled template. The result of which will fill in placeholders when render is called.
+	 *
+	 * @see ::render
+	 * @param array $pPlaceholders
+	 * @return string
+	 */
+	private function compilePlaceholders( array $pPlaceholders )
+	{
+		$placeholders = \var_export( $pPlaceholders, TRUE );
+
+		return "extract(\n" . $placeholders . "\n);\n";
 	}
 
 	/**
@@ -84,7 +107,7 @@ class Template
 	 */
 	public function parseBlock( $pBlock, array $pPlaceholders = [] )
 	{
-		$blockCName = '$' . $pBlock . '_ary';
+		$blockCName = $pBlock . '_ary';
 
 		if ( !\array_key_exists($blockCName, $this->blockPlaceholders) )
 		{
@@ -94,6 +117,42 @@ class Template
 		$this->blockPlaceholders[ $blockCName ][] = $pPlaceholders;
 
 		return TRUE;
+	}
+
+	/**
+	 * Render the template.
+	 *
+	 * @param array $pPlaceholders
+	 * @return string Template with all blocks and placeholders parsed.
+	 */
+	public function render( array $pPlaceholders = [] )
+	{
+		$code = '';
+
+		// 1. Convert the template to PHP.
+		if ( !isset($this->compiledTemplate) )
+		{
+			$this->compiledTemplate = '// Template ?>' . \PHP_EOL . $this->compile() . \PHP_EOL . '<?php' . \PHP_EOL;
+		}
+
+		// 2. Convert placeholders to PHP code string.
+		$code .= '// placeholders' . \PHP_EOL . $this->compilePlaceholders( $pPlaceholders ) . \PHP_EOL;
+
+		// 3. Convert block placeholders to PHP code as a string.
+		$code .= '// block placeholders' . \PHP_EOL . $this->compilePlaceholders( $this->blockPlaceholders ) . \PHP_EOL;
+
+		$code .= $this->compiledTemplate;
+
+		// 1. Start a new buffer to capture template output.
+		\ob_start();
+		// 2. Evaluate the PHP code generated.
+		eval( $code );
+		// 3. Get the contents of the template output.
+		$render = \ob_get_contents();
+		// 4. Remove the template output buffer.
+		\ob_end_clean();
+
+		return $render;
 	}
 
 	/**
