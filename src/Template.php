@@ -1,5 +1,7 @@
 <?php namespace Kshabazz\SigmaRemix;
 
+use \Kshabazz\Web\SigmaRemix\TemplateParser;
+
 /**
  * Class Processor
  *
@@ -30,9 +32,12 @@ class Template
 		$templateFile;
 
 	/**
-	 * Processor constructor.
+	 * Template constructor.
+	 *
+	 * @param $pTemplateFile
+	 * @param null $pParser Will be used to parse the template.
 	 */
-	public function __construct( $pTemplateFile )
+	public function __construct( $pTemplateFile, TemplateParser $pParser = NULL )
 	{
 		$this->templateFile = static::$rootDir . $pTemplateFile;
 
@@ -42,6 +47,7 @@ class Template
 		}
 
 		$this->blockPlaceholders = [];
+		$this->parser = $pParser;
 	}
 
 	/**
@@ -50,12 +56,16 @@ class Template
 	 * @return string
 	 * TODO: Make private.
 	 */
-	private function compile()
+	private function build()
 	{
 		// Load the template.
 		$template = \file_get_contents( $this->templateFile );
 
-		$this->parser = new Parser($template);
+		// Allow dependency injection.
+		if ( !isset($this->parser) )
+		{
+			$this->parser = new Parser( $template );
+		}
 
 		// Compile the template.
 		$compileTemplate = $this->parser->process();
@@ -132,7 +142,7 @@ class Template
 		// 1. Convert the template to PHP.
 		if ( !isset($this->compiledTemplate) )
 		{
-			$this->compiledTemplate = '// Template ?>' . \PHP_EOL . $this->compile() . \PHP_EOL . '<?php' . \PHP_EOL;
+			$this->compiledTemplate = '// Template ?>' . \PHP_EOL . $this->build() . \PHP_EOL . '<?php' . \PHP_EOL;
 		}
 
 		// 2. Convert placeholders to PHP code string.

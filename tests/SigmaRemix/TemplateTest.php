@@ -79,7 +79,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @covers ::compile
+	 * @covers ::build
 	 * @uses \Kshabazz\SigmaRemix\Template::__construct
 	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Template::render
@@ -129,7 +129,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @covers ::parseBlock
 	 * @uses \Kshabazz\SigmaRemix\Template::__construct
-	 * @uses \Kshabazz\SigmaRemix\Template::compile
+	 * @uses \Kshabazz\SigmaRemix\Template::build
 	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Template::render
 	 * @uses \Kshabazz\SigmaRemix\Parser
@@ -158,7 +158,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @covers ::render
 	 * @uses \Kshabazz\SigmaRemix\Template::__construct
-	 * @uses \Kshabazz\SigmaRemix\Template::compile
+	 * @uses \Kshabazz\SigmaRemix\Template::build
 	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Parser
 	 */
