@@ -157,9 +157,9 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @covers ::render
+	 * @covers ::compilePlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Template::__construct
 	 * @uses \Kshabazz\SigmaRemix\Template::build
-	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Parser
 	 */
 	public function test_should_render_a_template()
@@ -171,6 +171,62 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 		$actual = $template->render([ 'TEST_1' => 1234 ]);
 
 		$this->assertEquals( 1234, $actual );
+	}
+
+	/**
+	 * @covers ::render
+	 * @covers ::parseBlock
+	 * @uses \Kshabazz\SigmaRemix\Template::__construct
+	 * @uses \Kshabazz\SigmaRemix\Template::build
+	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser
+	 */
+	public function test_should_render_nested_block()
+	{
+		$template = new Template(
+			$this->templateDir . DIRECTORY_SEPARATOR . 'nested-blocks.html'
+		);
+
+		$actual = $template->render();
+
+		$expected = \file_get_contents(
+			$this->templateDir . DIRECTORY_SEPARATOR . 'expected-output-nested.txt'
+		);
+
+		$this->assertEquals( $expected, $actual );
+	}
+
+	/**
+	 * @covers ::render
+	 * @covers ::parseBlock
+	 * @uses \Kshabazz\SigmaRemix\Template::setRootDir
+	 * @uses \Kshabazz\SigmaRemix\Template::__construct
+	 * @uses \Kshabazz\SigmaRemix\Template::build
+	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser
+	 */
+	public function test_should_render_a_complex_template()
+	{
+		Template::setRootDir( $this->templateDir );
+
+		$template = new Template( DIRECTORY_SEPARATOR . 'complex.html' );
+
+		// This should cause the block to repeat it's content 3 times.
+		for ( $i = 1; $i < 3; $i++ )
+		{
+			$template->parseBlock( 'NESTED_BLOCK_1', ['TEST_1' => $i . '.'] );
+		}
+
+		$actual = $template->render();
+
+		$expected = \file_get_contents(
+			$this->templateDir . DIRECTORY_SEPARATOR . 'expected-output-complex.txt'
+		);
+
+		$this->assertEquals( $expected, $actual );
+
+		// Reset for next test.
+		Template::setRootDir( $this->templateDir );
 	}
 }
 ?>

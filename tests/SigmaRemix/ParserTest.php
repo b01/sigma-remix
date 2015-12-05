@@ -155,7 +155,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
 	 * @uses \Kshabazz\SigmaRemix\Parser::replacePlaceholder
 	 */
-	public function test_parsing_an_include_tag()
+	public function test_should_parse_an_include_tag()
 	{
 		$template = \file_get_contents(
 			$this->templateDir . DIRECTORY_SEPARATOR . 'include-placeholders-1.html'

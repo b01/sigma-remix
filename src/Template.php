@@ -64,14 +64,13 @@ class Template
 		// Allow dependency injection.
 		if ( !isset($this->parser) )
 		{
-			$this->parser = new Parser( $template );
+			$this->parser = new Parser( $template, self::$rootDir );
 		}
 
 		// Compile the template.
 		$compileTemplate = $this->parser->process();
 
-		// Add any blocks to parsed blocks so that their variables get set, this is good for blocks that do not get
-		// parsed.
+		// Build block placeholder arrays which are used when looping over a block.
 		$blocks = $this->parser->getBlocks();
 
 		foreach ($blocks as $block )

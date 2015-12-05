@@ -126,6 +126,25 @@ class Parser
 	}
 
 	/**
+	 * Replace INCLUDE tag with content from the file path it provides.
+	 *
+	 * @param $matches
+	 * @return string
+	 */
+	private function replaceInclude( $matches )
+	{
+		$content = '';
+		$includeFile = $this->includeTemplatesDir . DIRECTORY_SEPARATOR . $matches[ 1 ];
+
+		if ( \file_exists( $includeFile ) )
+		{
+			$content = \file_get_contents( $includeFile );
+		}
+
+		return $content;
+	}
+
+	/**
 	 * Perform placeholder substitution.
 	 *
 	 * @param array $match
@@ -156,25 +175,6 @@ class Parser
 		);
 
 		return $output;
-	}
-
-	/**
-	 * Replace INCLUDE tag with content from the file path it provides.
-	 *
-	 * @param $matches
-	 * @return string
-	 */
-	private function replaceInclude( $matches )
-	{
-		$content = '';
-		$includeFile = $this->includeTemplatesDir . DIRECTORY_SEPARATOR . $matches[ 1 ];
-
-		if ( \file_exists( $includeFile ) )
-		{
-			$content = \file_get_contents( $includeFile );
-		}
-
-		return $content;
 	}
 
 	/**
