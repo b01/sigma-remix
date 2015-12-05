@@ -54,9 +54,8 @@ class Template
 	 * Compile the template to PHP.
 	 *
 	 * @return string
-	 * TODO: Make private.
 	 */
-	private function build()
+	private function build( array $pPlaceholders = [] )
 	{
 		// Load the template.
 		$template = \file_get_contents( $this->templateFile );
@@ -67,10 +66,16 @@ class Template
 			$this->parser = new Parser( $template, self::$rootDir );
 		}
 
-		// Compile the template.
-		$compileTemplate = $this->parser->process();
+		// 1. Convert Sigma tags to PHP.
+		if ( !isset($this->compiledTemplate) )
+		{
+			$this->compiledTemplate = '// Template ?>'
+				. \PHP_EOL . $this->parser->process()
+				. \PHP_EOL . '<?php'
+				. \PHP_EOL;
+		}
 
-		// Build block placeholder arrays which are used when looping over a block.
+		// 2. Build block placeholder arrays for blocks that have not been parsed.
 		$blocks = $this->parser->getBlocks();
 
 		foreach ($blocks as $block )
@@ -78,7 +83,19 @@ class Template
 			$this->parseBlock($block, []);
 		}
 
-		return $compileTemplate;
+		// Placeholder values can change every time render is called. So do not add them to compiled template that is
+		// saved.
+
+		// 3. Convert placeholders to PHP code string.
+		$code = '// placeholders' . \PHP_EOL . $this->compilePlaceholders( $pPlaceholders ) . \PHP_EOL;
+
+		// 4. Convert block placeholders to PHP code as a string.
+		$code .= '// block placeholders' . \PHP_EOL . $this->compilePlaceholders( $this->blockPlaceholders ) . \PHP_EOL;
+
+		// 5. Put it all together.
+		$code .= $this->compiledTemplate;
+
+		return $code;
 	}
 
 	/**
@@ -136,29 +153,19 @@ class Template
 	 */
 	public function render( array $pPlaceholders = [] )
 	{
-		$code = '';
+		// 1. Get the compile template.
+		$code = $this->build( $pPlaceholders );
 
-		// 1. Convert the template to PHP.
-		if ( !isset($this->compiledTemplate) )
-		{
-			$this->compiledTemplate = '// Template ?>' . \PHP_EOL . $this->build() . \PHP_EOL . '<?php' . \PHP_EOL;
-		}
-
-		// 2. Convert placeholders to PHP code string.
-		$code .= '// placeholders' . \PHP_EOL . $this->compilePlaceholders( $pPlaceholders ) . \PHP_EOL;
-
-		// 3. Convert block placeholders to PHP code as a string.
-		$code .= '// block placeholders' . \PHP_EOL . $this->compilePlaceholders( $this->blockPlaceholders ) . \PHP_EOL;
-
-		$code .= $this->compiledTemplate;
-
-		// 1. Start a new buffer to capture template output.
+		// 2. Start a new buffer to capture template output.
 		\ob_start();
-		// 2. Evaluate the PHP code generated.
+
+		// 3. Evaluate the PHP code generated.
 		eval( $code );
-		// 3. Get the contents of the template output.
+
+		// 4. Get the contents of the template output.
 		$render = \ob_get_contents();
-		// 4. Remove the template output buffer.
+
+		// 5. Remove the template output buffer.
 		\ob_end_clean();
 
 		return $render;
