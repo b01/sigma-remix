@@ -176,13 +176,14 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @covers ::setBlockReplacements
+	 * @covers ::setBlocks
+	 * @covers ::replaceBlock
 	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
 	 * @uses \Kshabazz\SigmaRemix\Parser::process
 	 * @uses \Kshabazz\SigmaRemix\Parser::compile
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 * @uses \Kshabazz\SigmaRemix\Parser::replaceBlock
 	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
-	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
 	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
 	 */
 	public function test_should_replace_a_block()
@@ -198,6 +199,58 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 		$actual = $parser->process();
 
 		$this->assertContains( 'Replacement content', $actual );
+	}
+
+	/**
+	 * @covers ::removeBlocks
+	 * @covers ::setBlocks
+	 * @covers ::replaceBlock
+	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser::process
+	 * @uses \Kshabazz\SigmaRemix\Parser::compile
+	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
+	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 */
+	public function test_should_remove_a_block()
+	{
+		$template = \file_get_contents(
+			$this->templateDir . \DIRECTORY_SEPARATOR . 'blocks-2.html'
+		);
+
+		$parser = new Parser( $template );
+
+		$parser->removeBlocks([ 'BLOCK_1' ]);
+
+		$actual = $parser->process();
+
+		$this->assertNotContains( 'Block 1 content.', $actual );
+	}
+
+	/**
+	 * @covers ::getBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser::process
+	 * @uses \Kshabazz\SigmaRemix\Parser::compile
+	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
+	 * @uses \Kshabazz\SigmaRemix\Parser::replaceBlock
+	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 */
+	public function test_should_get_a_list_of_blocks_in_a_template()
+	{
+		$template = \file_get_contents(
+			$this->templateDir . \DIRECTORY_SEPARATOR . 'blocks-2.html'
+		);
+
+		$parser = new Parser( $template );
+
+		$parser->process();
+
+		$actual = $parser->getBlocks();
+
+		$this->assertContains( 'BLOCK_1', $actual );
 	}
 }
 ?>

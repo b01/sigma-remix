@@ -10,6 +10,10 @@ class Parser
 	private
 		/** @var array A list of block found and replaced within a template. */
 		$blocks,
+		/** @var array Blocks to remove from the template. */
+		$blockRemovals,
+		/** @var array Blocks to replace with new content. */
+		$blockReplacements,
 		/** @var array A list of functions found and replaced within a template. */
 		$functions,
 		/** @var string A regular expression to parse functions within a template. */
@@ -21,9 +25,7 @@ class Parser
 		/** @var array Placeholder within a template. */
 		$placeholders,
 		/** @var string Regular expression to parse placeholder tags. */
-		$placeholderRegEx,
-		/** @var array Blocks to replace with new content. */
-		$blockReplacements;
+		$placeholderRegEx;
 
 	/**
 	 * Parser constructor.
@@ -43,6 +45,7 @@ class Parser
 		$this->blockRegExp = '@<!--\s+BEGIN\s+([0-9A-Za-z_-]+)\s+-->'
 			. '(.*)'
 			. '<!--\s+END\s+\1\s+-->@sm';
+		$this->blockRemovals = [];
 		$this->blockReplacements = [];
 		$this->includeRegEx = '#<!--\s+INCLUDE\s+(\S+)\s+-->#im';
 		$this->includeTemplatesDir = $pIncludeTemplatesDir;
@@ -81,6 +84,21 @@ class Parser
 		$parsed = $this->compile( $parsed );
 
 		return $parsed;
+	}
+
+	/**
+	 * Set blocks to remove from the template.
+	 *
+	 * By default the array passed in is merged with any previous removals. Setting to FALSE will overwrite any
+	 * previous removals. Setting to FALSE then passing an empty array will clear all removals.
+	 *
+	 * @param array $pBlockRemovals
+	 */
+	public function removeBlocks( array $pBlockRemovals, $pMerge = TRUE )
+	{
+		$this->blockRemovals = $pMerge ? \array_merge( $pBlockRemovals ) : $pBlockRemovals;
+
+		return $this;
 	}
 
 	/**
@@ -144,15 +162,19 @@ class Parser
 			$blockContent = $this->blockReplacements[ $block ];
 		}
 
+		// Removed a block on demand.
+		if ( \in_array($block, $this->blockRemovals) )
+		{
+			return '';
+		}
+
 		// Build a list of all blocks found.
 		$this->blocks[] = $block;
 
-		$output = "<?php foreach (\${$block}_ary as \${$block}_vars):\n"
+		return "<?php foreach (\${$block}_ary as \${$block}_vars):\n"
 				. "\textract(\${$block}_vars); ?>"
 				. "{$blockContent}"
 				. "<?php endforeach; // END {$block} ?>";
-
-		return $output;
 	}
 
 	/**
