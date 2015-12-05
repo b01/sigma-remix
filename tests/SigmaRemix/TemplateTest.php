@@ -45,7 +45,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_set_template_root_directory()
 	{
-		Template::setRootDir( $this->templateDir . DIRECTORY_SEPARATOR );
+		Template::setRootDir( $this->templateDir  );
 
 		$processor = new Template('placeholders-1.html');
 
@@ -209,7 +209,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	{
 		Template::setRootDir( $this->templateDir );
 
-		$template = new Template( DIRECTORY_SEPARATOR . 'complex.html' );
+		$template = new Template( 'complex.html' );
 
 		// This should cause the block to repeat it's content 3 times.
 		for ( $i = 1; $i < 3; $i++ )

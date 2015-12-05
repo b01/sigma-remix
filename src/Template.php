@@ -231,12 +231,12 @@ class Template
 	static public function setCacheDir( $pCacheDir )
 	{
 		// Report when invalid values are passed as an argument.
-		if ( !\is_dir($pCacheDir) && !\is_null($pCacheDir) )
+		if ( !\is_dir($pCacheDir) && !empty($pCacheDir) )
 		{
 			throw new TemplateException(TemplateException::BAD_CACHE_DIR, [$pCacheDir]);
 		}
 
-		self::$cacheDir = $pCacheDir;
+		self::$cacheDir = empty($pCacheDir) ? $pCacheDir : $pCacheDir . DIRECTORY_SEPARATOR;
 
 		return TRUE;
 	}
@@ -252,12 +252,12 @@ class Template
 	static public function setRootDir( $pTemplateRoot )
 	{
 		// Report when invalid values are passed as an argument.
-		if ( !\is_dir($pTemplateRoot) && !\is_null($pTemplateRoot) )
+		if ( !\is_dir($pTemplateRoot) && !empty($pTemplateRoot) )
 		{
 			throw new TemplateException(TemplateException::BAD_TEMPLATE_ROOT_DIR, [$pTemplateRoot]);
 		}
 
-		self::$rootDir = $pTemplateRoot;
+		self::$rootDir = empty($pTemplateRoot) ? $pTemplateRoot : $pTemplateRoot . DIRECTORY_SEPARATOR;
 
 		return TRUE;
 	}
