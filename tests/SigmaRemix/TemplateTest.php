@@ -226,7 +226,28 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals( $expected, $actual );
 
 		// Reset for next test.
-		Template::setRootDir( $this->templateDir );
+		Template::setRootDir( NULL );
+	}
+
+	/**
+	 * @covers ::replaceBlock
+	 * @uses \Kshabazz\SigmaRemix\Template::__construct
+	 * @uses \Kshabazz\SigmaRemix\Template::build
+	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Template::parseBlock
+	 * @uses \Kshabazz\SigmaRemix\Template::render
+	 * @uses \Kshabazz\SigmaRemix\Parser
+	 */
+	public function test_replacing_a_block()
+	{
+		$template = new Template(
+			$this->templateDir . DIRECTORY_SEPARATOR . 'block-1.html'
+		);
+
+		$actual = $template->replaceBlock( 'BLOCK_1', 'New content with a {TEST} placeholder.' )
+			->render([ 'TEST' => 1 ]);
+
+		$this->assertContains( 'New content with a 1 placeholder.', $actual );
 	}
 }
 ?>

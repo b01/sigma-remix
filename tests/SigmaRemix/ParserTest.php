@@ -42,6 +42,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @covers ::replacePlaceholder
 	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
 	 * @uses \Kshabazz\SigmaRemix\Parser::process
+	 * @uses \Kshabazz\SigmaRemix\Parser::compile
 	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
@@ -57,6 +58,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @covers ::process
+	 * @covers ::compile
 	 * @covers ::setBlocks
 	 * @covers ::replaceBlock
 	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
@@ -82,6 +84,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @covers ::process
+	 * @covers ::compile
 	 * @covers ::setBlocks
 	 * @covers ::replaceBlock
 	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
@@ -112,6 +115,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @covers ::process
+	 * @covers ::compile
 	 * @covers ::setBlocks
 	 * @covers ::replaceBlock
 	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
@@ -149,6 +153,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @covers ::setIncludes
 	 * @covers ::replaceInclude
 	 * @covers ::process
+	 * @covers ::compile
 	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
 	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
@@ -167,6 +172,32 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertContains( 'Including placeholders-1.html was', $data );
 		$this->assertContains( '$TEST_1', $data );
+	}
+
+	/**
+	 * @covers ::setBlockReplacements
+	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser::process
+	 * @uses \Kshabazz\SigmaRemix\Parser::compile
+	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::replaceBlock
+	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
+	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 */
+	public function test_should_replace_a_block()
+	{
+		$template = \file_get_contents(
+			$this->templateDir . \DIRECTORY_SEPARATOR . 'block-1.html'
+		);
+
+		$parser = new Parser( $template );
+
+		$parser->setBlockReplacements([ 'BLOCK_1' => 'Replacement content' ]);
+
+		$actual = $parser->process();
+
+		$this->assertContains( 'Replacement content', $actual );
 	}
 }
 ?>

@@ -28,6 +28,8 @@ class Template
 		$parser,
 		/** @var array Placeholder values. */
 		$placeholders,
+		/** @var array Block replacements. */
+		$replaceBlocks,
 		/** @var string File path to the template. */
 		$templateFile;
 
@@ -65,6 +67,8 @@ class Template
 		{
 			$this->parser = new Parser( $template, self::$rootDir );
 		}
+
+		$this->parser->setBlockReplacements( $this->replaceBlocks );
 
 		// 1. Convert Sigma tags to PHP.
 		if ( !isset($this->compiledTemplate) )
@@ -137,6 +141,7 @@ class Template
 
 		if ( !\array_key_exists($blockCName, $this->blockPlaceholders) )
 		{
+			// Initialize the block placeholder variable.
 			$this->blockPlaceholders[ $blockCName ] = [];
 		}
 
@@ -169,6 +174,16 @@ class Template
 		\ob_end_clean();
 
 		return $render;
+	}
+
+	/**
+	 * Replace block content with new content.
+	 */
+	public function replaceBlock( $pBlock, $pContent )
+	{
+		$this->replaceBlocks[ $pBlock ] = $pContent;
+
+		return $this;
 	}
 
 	/**
