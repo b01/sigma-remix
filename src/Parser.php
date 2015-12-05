@@ -7,6 +7,9 @@
  */
 class Parser
 {
+	/** @var bool Throw errors for simple mistakes that are not fatal. */
+	static private $strictMode = FALSE;
+
 	private
 		/** @var array A list of block found and replaced within a template. */
 		$blocks,
@@ -25,7 +28,30 @@ class Parser
 		/** @var array Placeholder within a template. */
 		$placeholders,
 		/** @var string Regular expression to parse placeholder tags. */
-		$placeholderRegEx;
+		$placeholderRegEx,
+		/** @var string A regular expression to parse REPLACE tags. */
+		$replaceBlockRegEx;
+
+	/**
+	 * When on, will throw exceptions when:
+	 * Cannot find an include file.
+	 *
+	 * @param bool $pBool TRUE or FALSE, to turn on or off respectively.
+	 */
+	static public function setStrict( $pBool )
+	{
+		static::$strictMode = $pBool;
+	}
+
+	/**
+	 * Get indication if the parser is in strict mode.
+	 *
+	 * @return bool
+	 */
+	static public function isStrict()
+	{
+		return static::$strictMode;
+	}
 
 	/**
 	 * Parser constructor.
@@ -42,6 +68,7 @@ class Parser
 		}
 
 		$this->blocks = [];
+		// TODO: Change to match replaceBlockRegEx with BLOCK .* /BLOCK
 		$this->blockRegExp = '@<!--\s+BEGIN\s+([0-9A-Za-z_-]+)\s+-->'
 			. '(.*)'
 			. '<!--\s+END\s+\1\s+-->@sm';
@@ -59,6 +86,9 @@ class Parser
 			$functionNameChars
 		);
 		$this->placeholders = [];
+		$this->replaceBlockRegEx = '@<!--\s+REPLACE\s+([0-9A-Za-z_-]+)\s+-->'
+			. '(.*)'
+			. '<!--\s+/REPLACE\s+-->@sm';
 		$this->template = $pTemplate;
 	}
 
@@ -110,6 +140,7 @@ class Parser
 	{
 		if ( \is_array($pReplacements) )
 		{
+			// Compile each element as a template.
 			$this->blockReplacements = $this->compile( $pReplacements );
 		}
 
@@ -119,12 +150,20 @@ class Parser
 	/**
 	 * @param string $pTemplate Convert template tags into PHP.
 	 *
+	 * Compile can all take an array, treating each element as a template.
+	 *
+	 * @param string|array $pTemplate
 	 * @return string
 	 */
 	private function compile( $pTemplate )
 	{
+		$parsed = $pTemplate;
+
 		// 1. Replace all INCLUDE tags first, then process the whole template.
-		$parsed = $this->setIncludes( $pTemplate );
+		$parsed = $this->setIncludes( $parsed );
+
+		// 2. Must happen after include, so we can perform in-template replacements request.
+		$parsed = $this->setReplaceBlocks( $parsed );
 
 		// 2. Parse functions.
 		$parsed = $this->setFunctions( $parsed );
@@ -192,6 +231,10 @@ class Parser
 		{
 			$content = \file_get_contents( $includeFile );
 		}
+		else if ( static::isStrict() )
+		{
+			throw new ParserException( ParserException::BAD_INCLUDE, [$includeFile] );
+		}
 
 		return $content;
 	}
@@ -213,6 +256,30 @@ class Parser
 	}
 
 	/**
+	 * Perform REPLACE tag substitution.
+	 *
+	 * @param array $pMatches
+	 * @return string
+	 */
+	private function replaceReplaceTag( array $pMatches )
+	{
+		$block = $pMatches[1];
+
+		// TODO: Limit the amount of recursion.
+		// Recursively parse nested blocks.
+		$blockContent = \preg_replace_callback(
+			$this->replaceBlockRegEx,
+			[ $this, 'replaceReplaceTag' ],
+			$pMatches[2]
+		);
+
+		$this->blockReplacements[ $block ] = $blockContent;
+
+		// REPLACE blocks are removed from the compiled template.
+		return '';
+	}
+
+	/**
 	 * Replace blocks in a template with the PHP counter part.
 	 *
 	 * A block MUST have a begin and end tag, or it will be ignored.
@@ -222,7 +289,7 @@ class Parser
 	 * <!-- END MY_BLOCK -->
 	 * </code>
 	 *
-	 * @param string $pTemplate Template to parse.
+	 * @param string|array $pTemplate Template to parse.
 	 * @return string
 	 */
 	private function setBlocks( $pTemplate )
@@ -235,7 +302,7 @@ class Parser
 	/**
 	 * Get function calls withing template.
 	 *
-	 * @param string $pTemplate
+	 * @param string|array $pTemplate
 	 * @return string
 	 */
 	private function setFunctions( $pTemplate )
@@ -248,35 +315,46 @@ class Parser
 	/**
 	 * Replace all includes with corresponding PHP.
 	 *
-	 * @param string $pTemplate Template to parse.
+	 * @param string|array $pTemplate Template to parse.
 	 * @return string
 	 */
 	private function setIncludes( $pTemplate )
 	{
-		$output = \preg_replace_callback(
+		return \preg_replace_callback(
 				$this->includeRegEx,
 				[ $this, 'replaceInclude' ],
 				$pTemplate
 		);
-
-		return $output;
 	}
 
 	/**
 	 * Get placeholder in a template.
 	 *
-	 * @param string $pTemplate
+	 * @param string|array $pTemplate
 	 * @return string
 	 */
 	private function setPlaceholders( $pTemplate )
 	{
-		$output = \preg_replace_callback(
+		return \preg_replace_callback(
 			$this->placeholderRegEx,
 			[$this, 'replacePlaceholder'],
 			$pTemplate
 		);
+	}
 
-		return $output;
+	/**
+	 * Get placeholder in a template.
+	 *
+	 * @param string|array $pTemplate
+	 * @return string
+	 */
+	private function setReplaceBlocks( $pTemplate )
+	{
+		return \preg_replace_callback(
+			$this->replaceBlockRegEx,
+			[$this, 'replaceReplaceTag'],
+			$pTemplate
+		);
 	}
 }
 ?>

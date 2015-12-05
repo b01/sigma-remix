@@ -34,7 +34,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function test_should_throw_exception_when_second_parameters_is_an_invalid_dir()
 	{
-		$parser = new Parser( '{TEST_1}', 'fake-dir' );
+		( new Parser('{TEST_1}', 'fake-dir') );
 	}
 
 	/**
@@ -46,6 +46,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
 	 */
 	public function test_parsing_placeholders()
 	{
@@ -65,6 +66,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
 	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
 	 */
 	public function test_parsing_block_with_just_text()
 	{
@@ -91,6 +93,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
 	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
 	 */
 	public function test_should_parse_two_consecutive_blocks()
 	{
@@ -122,6 +125,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
 	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
 	 */
 	public function test_should_parse_nested_blocks()
 	{
@@ -159,6 +163,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
 	 * @uses \Kshabazz\SigmaRemix\Parser::replacePlaceholder
+	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
 	 */
 	public function test_should_parse_an_include_tag()
 	{
@@ -185,6 +190,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Parser::replaceBlock
 	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
 	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
 	 */
 	public function test_should_replace_a_block()
 	{
@@ -211,6 +217,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
 	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
 	 */
 	public function test_should_remove_a_block()
 	{
@@ -237,6 +244,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Parser::replaceBlock
 	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
 	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
 	 */
 	public function test_should_get_a_list_of_blocks_in_a_template()
 	{
@@ -251,6 +259,72 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 		$actual = $parser->getBlocks();
 
 		$this->assertContains( 'BLOCK_1', $actual );
+	}
+
+	/**
+	 * @expectedException \Kshabazz\SigmaRemix\ParserException
+	 * @expectedExceptionMessage
+	 * @expectedExceptionCode 1
+	 * @covers ::setStrict
+	 * @covers ::isStrict
+	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser::process
+	 * @uses \Kshabazz\SigmaRemix\Parser::compile
+	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::replaceInclude
+	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
+	 * @uses \Kshabazz\SigmaRemix\SigmaRemixException
+	 * @uses \Kshabazz\SigmaRemix\ParserException
+	 */
+	public function test_should_error_when_cannot_include_file_from_include_tag()
+	{
+		$template = \file_get_contents(
+			$this->templateDir . \DIRECTORY_SEPARATOR . 'replace-block-1.html'
+		);
+
+		// Turn on parser strict mode.
+		Parser::setStrict( TRUE );
+
+		$parser = new Parser( $template );
+
+		$parser->process();
+
+		// Turn off parser strict mode.
+		Parser::setStrict( FALSE );
+	}
+
+	/**
+	 * @covers ::setReplaceBlocks
+	 * @covers ::replaceReplaceTag
+	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser::process
+	 * @uses \Kshabazz\SigmaRemix\Parser::compile
+	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::replaceInclude
+	 * @uses \Kshabazz\SigmaRemix\Parser::setIncludes
+	 * @uses \Kshabazz\SigmaRemix\Parser::replaceBlock
+	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser::setStrict
+	 */
+	public function test_should_replace_one_block_with_another()
+	{
+		$template = \file_get_contents(
+			$this->templateDir . \DIRECTORY_SEPARATOR . 'replace-block-1.html'
+		);
+
+		// Turn on Parser strict mode.
+		Parser::setStrict( TRUE );
+
+		$parser = new Parser( $template, $this->templateDir . \DIRECTORY_SEPARATOR );
+
+		$actual = $parser->process();
+
+		$this->assertContains( 'Content was replaced.', $actual );
+		$this->assertNotContains( 'Block 1 content.', $actual );
+
+		// Turn off Parser strict mode.
+		Parser::setStrict( FALSE );
 	}
 }
 ?>
