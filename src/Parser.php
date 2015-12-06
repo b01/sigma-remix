@@ -7,6 +7,18 @@
  */
 class Parser
 {
+	/**
+	 * Limit the number of recursive calls a function can make.
+	 *
+	 * This is reset once the limit is hit and the function returns. Strict mode will cause an error to be throw when
+	 * the limit is reached.
+	 *
+	 * @var int
+	 * @see ::replaceBlock, ::replaceInclude, ::replaceReplaceTag
+	 * TODO: Implement and add static functions to set.
+	 */
+	static private $recursionLimit = 10;
+
 	/** @var bool Throw errors for simple mistakes that are not fatal. */
 	static private $strictMode = FALSE;
 
@@ -186,14 +198,29 @@ class Parser
 	 */
 	private function replaceBlock( array $pMatch )
 	{
-		$block = $pMatch[1];
+		static $recursionCount = 0;
+		$block = $pMatch[ 1 ];
 
-		// Recursively parse nested blocks.
-		$blockContent = \preg_replace_callback(
-			$this->blockRegExp,
-			[ $this, 'replaceBlock' ],
-			$pMatch[2]
-		);
+		// Prevent infinite loop via recursion.
+		if ( $recursionCount < self::$recursionLimit )
+		{
+			// Increment recursion
+			$recursionCount++;
+
+			// Recursively parse nested blocks.
+			$blockContent = \preg_replace_callback(
+				$this->blockRegExp,
+				[ $this, __FUNCTION__ ],
+				$pMatch[ 2 ]
+			);
+
+			// Decrement since we have returned.
+			$recursionCount--;
+		}
+		else if ( static::$strictMode )
+		{
+			throw new ParserException( ParserException::RECURSION, ['BLOCK', __FUNCTION__] );
+		}
 
 		// Replace a blocks content on demand.
 		if ( \array_key_exists($block, $this->blockReplacements) )
@@ -224,24 +251,47 @@ class Parser
 	 */
 	private function replaceInclude( $pMatch )
 	{
+		static $recursionCount = 0;
 		$content = '';
 		$includeFile = $this->includeTemplatesDir . DIRECTORY_SEPARATOR . $pMatch[ 1 ];
 
-		if ( \file_exists( $includeFile ) )
+		// Prevent infinite loop via recursion.
+		if ( $recursionCount > self::$recursionLimit )
 		{
-			$content = \file_get_contents( $includeFile );
+			if ( static::isStrict() )
+			{
+				$recursionCount = 0;
+				throw new ParserException( ParserException::RECURSION, ['INCLUDE', __FUNCTION__] );
+			}
 
-			// Recursively parse include tags.
-			$content = \preg_replace_callback(
-				$this->includeRegEx,
-				[ $this, 'replaceInclude' ],
-				$content
-			);
+			return $content;
 		}
-		else if ( static::isStrict() )
+
+		if ( !\file_exists($includeFile) )
 		{
-			throw new ParserException( ParserException::BAD_INCLUDE, [$includeFile] );
+			if ( static::isStrict() )
+			{
+				throw new ParserException( ParserException::BAD_INCLUDE, [$includeFile] );
+			}
+
+			return $content;
 		}
+
+		$content = \file_get_contents( $includeFile );
+
+		// Increment recursion
+		$recursionCount++;
+
+		// Recursively parse include tags.
+		$content = \preg_replace_callback(
+			$this->includeRegEx,
+			[ $this, 'replaceInclude' ],
+			$content
+		);
+
+		// Decrement since we have returned.
+		$recursionCount--;
+
 
 		return $content;
 	}

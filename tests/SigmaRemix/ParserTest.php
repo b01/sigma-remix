@@ -327,7 +327,6 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 		Parser::setStrict( FALSE );
 	}
 
-
 	/**
 	 * @covers ::setIncludes
 	 * @covers ::replaceInclude
@@ -352,6 +351,41 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertContains( 'Including placeholders-1.html was', $data );
 		$this->assertContains( '$TEST_1', $data );
+	}
+
+
+	/**
+	 * @expectedException \Kshabazz\SigmaRemix\ParserException
+	 * @expectedExceptionMessage Maximum number of recursive/nested INCLUDE tags has been reached (function
+	 * replaceInclude)
+	 * @expectedExceptionCode 2
+	 * @covers ::setIncludes
+	 * @covers ::replaceInclude
+	 * @covers ::process
+	 * @covers ::compile
+	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::replacePlaceholder
+	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::setStrict
+	 * @uses \Kshabazz\SigmaRemix\Parser::isStrict
+	 * @uses \Kshabazz\SigmaRemix\SigmaRemixException
+	 */
+	public function test_should_parse_an_include_tags_infinie_loop()
+	{
+		$template = \file_get_contents(
+			$this->templateDir . DIRECTORY_SEPARATOR . 'include-recursively-infinite-loop.html'
+		);
+
+		Parser::setStrict( TRUE );
+
+		$parser = new Parser( $template, $this->templateDir );
+
+		$parser->process();
+
+		Parser::setStrict( FALSE );
 	}
 }
 ?>
