@@ -56,6 +56,8 @@ class Template
 	 * Compile the template to PHP.
 	 *
 	 * @return string
+	 *
+	 * TODO Implement loading from cache
 	 */
 	private function build( array $pPlaceholders = [] )
 	{
@@ -194,6 +196,7 @@ class Template
 	 */
 	public function save()
 	{
+		// TODO: Complete
 		$saveFile = static::$cacheDir
 				. DIRECTORY_SEPARATOR . basename( $this->templateFile ) . '.php';
 

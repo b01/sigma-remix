@@ -134,3 +134,13 @@ Rendered Output:
 	<li>Item 3 Cherry</li>
 </ul>
 ```
+
+## Trouble shooting
+White space is significant, for example
+
+```html
+This will not work, because at least one space must be between the filename and the closing HTML comment marker.
+<!-- INCLUDE example.html-->
+
+This will work.
+<!-- INCLUDE example.html -->
