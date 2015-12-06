@@ -326,5 +326,32 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 		// Turn off Parser strict mode.
 		Parser::setStrict( FALSE );
 	}
+
+
+	/**
+	 * @covers ::setIncludes
+	 * @covers ::replaceInclude
+	 * @covers ::process
+	 * @covers ::compile
+	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::replacePlaceholder
+	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
+	 */
+	public function test_should_parse_an_include_tags_recursively()
+	{
+		$template = \file_get_contents(
+			$this->templateDir . DIRECTORY_SEPARATOR . 'include-recursively-once.html'
+		);
+
+		$parser = new Parser( $template, $this->templateDir );
+
+		$data = $parser->process();
+
+		$this->assertContains( 'Including placeholders-1.html was', $data );
+		$this->assertContains( '$TEST_1', $data );
+	}
 }
 ?>

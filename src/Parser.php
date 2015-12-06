@@ -181,18 +181,18 @@ class Parser
 	/**
 	 * Perform block PHP substitution.
 	 *
-	 * @param array $pMatches
+	 * @param array $pMatch
 	 * @return string
 	 */
-	private function replaceBlock( array $pMatches )
+	private function replaceBlock( array $pMatch )
 	{
-		$block = $pMatches[1];
+		$block = $pMatch[1];
 
 		// Recursively parse nested blocks.
 		$blockContent = \preg_replace_callback(
 			$this->blockRegExp,
 			[ $this, 'replaceBlock' ],
-			$pMatches[2]
+			$pMatch[2]
 		);
 
 		// Replace a blocks content on demand.
@@ -219,17 +219,24 @@ class Parser
 	/**
 	 * Replace INCLUDE tag with content from the file path it provides.
 	 *
-	 * @param $matches
+	 * @param $pMatch
 	 * @return string
 	 */
-	private function replaceInclude( $matches )
+	private function replaceInclude( $pMatch )
 	{
 		$content = '';
-		$includeFile = $this->includeTemplatesDir . DIRECTORY_SEPARATOR . $matches[ 1 ];
+		$includeFile = $this->includeTemplatesDir . DIRECTORY_SEPARATOR . $pMatch[ 1 ];
 
 		if ( \file_exists( $includeFile ) )
 		{
 			$content = \file_get_contents( $includeFile );
+
+			// Recursively parse include tags.
+			$content = \preg_replace_callback(
+				$this->includeRegEx,
+				[ $this, 'replaceInclude' ],
+				$content
+			);
 		}
 		else if ( static::isStrict() )
 		{
@@ -242,12 +249,12 @@ class Parser
 	/**
 	 * Perform placeholder substitution.
 	 *
-	 * @param array $match
+	 * @param array $pMatch
 	 * @return string
 	 */
-	private function replacePlaceholder( array $match )
+	private function replacePlaceholder( array $pMatch )
 	{
-		$placeholder = $match[1];
+		$placeholder = $pMatch[1];
 
 		// Build a list of all placeholders found.
 		$this->placeholders[] = $placeholder;
@@ -258,19 +265,19 @@ class Parser
 	/**
 	 * Perform REPLACE tag substitution.
 	 *
-	 * @param array $pMatches
+	 * @param array $pMatch
 	 * @return string
 	 */
-	private function replaceReplaceTag( array $pMatches )
+	private function replaceReplaceTag( array $pMatch )
 	{
-		$block = $pMatches[1];
+		$block = $pMatch[1];
 
 		// TODO: Limit the amount of recursion.
 		// Recursively parse nested blocks.
 		$blockContent = \preg_replace_callback(
 			$this->replaceBlockRegEx,
 			[ $this, 'replaceReplaceTag' ],
-			$pMatches[2]
+			$pMatch[2]
 		);
 
 		$this->blockReplacements[ $block ] = $blockContent;
