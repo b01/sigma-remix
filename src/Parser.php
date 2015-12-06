@@ -202,25 +202,27 @@ class Parser
 		$block = $pMatch[ 1 ];
 
 		// Prevent infinite loop via recursion.
-		if ( $recursionCount < self::$recursionLimit )
+		if ( $recursionCount > self::$recursionLimit )
 		{
-			// Increment recursion
-			$recursionCount++;
-
-			// Recursively parse nested blocks.
-			$blockContent = \preg_replace_callback(
-				$this->blockRegExp,
-				[ $this, __FUNCTION__ ],
-				$pMatch[ 2 ]
-			);
-
-			// Decrement since we have returned.
-			$recursionCount--;
+			if ( static::isStrict() )
+			{
+				$recursionCount = 0;// Reset in cases where the error is caught and execution proceeds.
+				throw new ParserException( ParserException::RECURSION, ['BLOCK', __FUNCTION__] );
+			}
 		}
-		else if ( static::$strictMode )
-		{
-			throw new ParserException( ParserException::RECURSION, ['BLOCK', __FUNCTION__] );
-		}
+
+		// Increment recursion
+		$recursionCount++;
+
+		// Recursively parse nested blocks.
+		$blockContent = \preg_replace_callback(
+			$this->blockRegExp,
+			[ $this, __FUNCTION__ ],
+			$pMatch[ 2 ]
+		);
+
+		// Decrement since we have returned.
+		$recursionCount--;
 
 		// Replace a blocks content on demand.
 		if ( \array_key_exists($block, $this->blockReplacements) )
@@ -320,7 +322,18 @@ class Parser
 	 */
 	private function replaceReplaceTag( array $pMatch )
 	{
+		static $recursionCount = 0;
 		$block = $pMatch[1];
+
+		// Prevent infinite loop via recursion.
+		if ( $recursionCount > self::$recursionLimit )
+		{
+			if ( static::isStrict() )
+			{
+				$recursionCount = 0;// Reset in cases where the error is caught and execution proceeds.
+				throw new ParserException( ParserException::RECURSION, ['REPLACE', __FUNCTION__] );
+			}
+		}
 
 		// TODO: Limit the amount of recursion.
 		// Recursively parse nested blocks.
