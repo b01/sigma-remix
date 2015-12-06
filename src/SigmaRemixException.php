@@ -14,7 +14,7 @@ abstract class SigmaRemixException extends \Exception
 	/**
 	 * @var array Error messages.
 	 */
-	protected $messages = [
+	static protected $messages = [
 		self::UNKNOWN => 'An unknown error occurred.',
 	];
 
@@ -57,17 +57,17 @@ abstract class SigmaRemixException extends \Exception
 			return \vsprintf( $pCustomMessage, $pData );
 		}
 		// When no entry for code found, return a generic error message.
-		if ( !\array_key_exists($pCode, $this->messages) )
+		if ( !\array_key_exists($pCode, static::$messages) )
 		{
-			return $this->messages[ self::UNKNOWN ];
+			return static::$messages[ self::UNKNOWN ];
 		}
 		// Parse variables in the error message when present.
 		if ( \is_array($pData) )
 		{
-			return \vsprintf( $this->messages[ $pCode ], $pData );
+			return \vsprintf( static::$messages[ $pCode ], $pData );
 		}
 
-		return $this->messages[ $pCode ];
+		return static::$messages[ $pCode ];
 	}
 }
 ?>
