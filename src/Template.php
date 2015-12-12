@@ -36,8 +36,9 @@ class Template
 	/**
 	 * Template constructor.
 	 *
-	 * @param $pTemplateFile
-	 * @param null $pParser Will be used to parse the template.
+	 * @param string $pTemplateFile
+	 * @param TemplateParser|NULL $pParser Will be used to parse the template.
+	 * @throws TemplateException
 	 */
 	public function __construct( $pTemplateFile, TemplateParser $pParser = NULL )
 	{
@@ -55,6 +56,7 @@ class Template
 	/**
 	 * Compile the template to PHP.
 	 *
+	 * @param array $pPlaceholders Values to fill in placeholders.
 	 * @return string
 	 *
 	 * TODO Implement loading from cache
