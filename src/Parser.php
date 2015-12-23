@@ -8,6 +8,13 @@
 class Parser
 {
 	/**
+	 * Switch debug messages on/off.
+	 *
+	 * @var bool
+	 */
+	static private $debug = FALSE;
+
+	/**
 	 * Limit the number of recursive calls a function can make.
 	 *
 	 * This is reset once the limit is hit and the function returns. Strict mode will cause an error to be throw when
@@ -42,7 +49,19 @@ class Parser
 		/** @var string Regular expression to parse placeholder tags. */
 		$placeholderRegEx,
 		/** @var string A regular expression to parse REPLACE tags. */
-		$replaceBlockRegEx;
+		$replaceBlockRegEx,
+		$replaceEndRegEx,
+		$replaceStartRegEx;
+
+	/**
+	 * Turn debugging messages on/off.
+	 *
+	 * @param bool $pSwitch
+	 */
+	static public function setDebug( $pSwitch )
+	{
+		static::$debug = $pSwitch;
+	}
 
 	/**
 	 * When on, will throw exceptions when:
@@ -100,7 +119,9 @@ class Parser
 		$this->placeholders = [];
 		$this->replaceBlockRegEx = '@<!--\s+REPLACE\s+([0-9A-Za-z_-]+)\s+-->'
 			. '(.*)'
-			. '<!--\s+/REPLACE\s+-->@sm';
+			. '<!--\s+\/REPLACE\s+-->@smU';
+		$this->replaceEndRegEx = '@<!--\s+/REPLACE\s+-->@sm';
+		$this->replaceStartRegEx = '@<!--\s+REPLACE\s+([0-9A-Za-z_-]+)\s+-->@sm';
 		$this->template = $pTemplate;
 	}
 
@@ -135,6 +156,7 @@ class Parser
 	 * previous removals. Setting to FALSE then passing an empty array will clear all removals.
 	 *
 	 * @param array $pBlockRemovals
+	 * @return $this
 	 */
 	public function removeBlocks( array $pBlockRemovals, $pMerge = TRUE )
 	{
@@ -147,6 +169,7 @@ class Parser
 	 * Set new content to replace existing block content.
 	 *
 	 * @param array $pReplacements
+	 * @return $this
 	 */
 	public function setBlockReplacements( array $pReplacements = NULL )
 	{
@@ -170,6 +193,11 @@ class Parser
 	private function compile( $pTemplate )
 	{
 		$parsed = $pTemplate;
+
+		if ( static::$debug )
+		{
+			print "\n${parsed}\n";
+		}
 
 		// 1. Replace all INCLUDE tags first, then process the whole template.
 		$parsed = $this->setIncludes( $parsed );
@@ -195,6 +223,7 @@ class Parser
 	 *
 	 * @param array $pMatch
 	 * @return string
+	 * @throws ParserException
 	 */
 	private function replaceBlock( array $pMatch )
 	{
@@ -320,12 +349,17 @@ class Parser
 	 *
 	 * @param array $pMatch
 	 * @return string
+	 * @throws \Kshabazz\SigmaRemix\ParserException
 	 */
 	private function replaceReplaceTag( array $pMatch )
 	{
 		static $recursionCount = 0;
 		$block = $pMatch[1];
 
+		if ( static::$debug )
+		{
+			print_r( $pMatch );
+		}
 		// Prevent infinite loop via recursion.
 		if ( $recursionCount > self::$recursionLimit )
 		{
@@ -421,6 +455,10 @@ class Parser
 	 */
 	private function setReplaceBlocks( $pTemplate )
 	{
+		if ( static::$debug )
+		{
+			print $pTemplate;
+		}
 		return \preg_replace_callback(
 			$this->replaceBlockRegEx,
 			[$this, 'replaceReplaceTag'],

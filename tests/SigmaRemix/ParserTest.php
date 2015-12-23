@@ -15,12 +15,14 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	public function setUp()
 	{
 		$this->templateDir = FIXTURES_DIR;
+		Parser::setStrict( FALSE );
+		Parser::setDebug( FALSE );
 	}
 
 	/**
 	 * @covers ::__construct
 	 */
-	public function test_initialization()
+	public function testInitializingAParserObject()
 	{
 		$parser = new Parser( '{TEST_1}', NULL );
 
@@ -32,7 +34,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @expectedException \InvalidArgumentException
 	 * @expectedExceptionMessage fake-dir is not a valid directory.
 	 */
-	public function test_should_throw_exception_when_second_parameters_is_an_invalid_dir()
+	public function testShouldThrowAnExceptionWhenTheSecondParameterIsAnInvalidDirectory()
 	{
 		( new Parser('{TEST_1}', 'fake-dir') );
 	}
@@ -48,7 +50,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
 	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
 	 */
-	public function test_parsing_placeholders()
+	public function testCompileASinglePlaceholderToAPhpEchoStatement()
 	{
 		$parser = new Parser('{TEST_1}', NULL);
 		$data = $parser->process();
@@ -68,7 +70,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
 	 */
-	public function test_parsing_block_with_just_text()
+	public function testCompileASingleBlockHavingOnlyTextToForeachStatement()
 	{
 		$template = \file_get_contents(
 			$this->templateDir . DIRECTORY_SEPARATOR . 'block-1.html'
@@ -95,7 +97,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
 	 */
-	public function test_should_parse_two_consecutive_blocks()
+	public function testCompile2ConsecutiveBlocksToForeachStatements()
 	{
 		$template = \file_get_contents(
 			$this->templateDir . DIRECTORY_SEPARATOR . 'blocks-2.html'
@@ -127,7 +129,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
 	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
 	 */
-	public function test_should_parse_nested_blocks()
+	public function testCompileNestedBlocksToNestedForeachStatements()
 	{
 		$template = \file_get_contents(
 			$this->templateDir . DIRECTORY_SEPARATOR . 'nested-blocks.html'
@@ -353,7 +355,6 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 		$this->assertContains( '$TEST_1', $data );
 	}
 
-
 	/**
 	 * @expectedException \Kshabazz\SigmaRemix\ParserException
 	 * @expectedExceptionMessage Maximum number of recursive/nested INCLUDE tags has been reached (function
@@ -373,7 +374,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Parser::isStrict
 	 * @uses \Kshabazz\SigmaRemix\SigmaRemixException
 	 */
-	public function test_should_parse_an_include_tags_infinie_loop()
+	public function test_should_parse_an_include_tags_infinite_loop()
 	{
 		$template = \file_get_contents(
 			$this->templateDir . DIRECTORY_SEPARATOR . 'include-recursively-infinite-loop.html'
@@ -387,8 +388,6 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
 		Parser::setStrict( FALSE );
 	}
-
-
 
 	/**
 	 * @covers ::setIncludes
@@ -418,6 +417,41 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 		$actual = $parser->process();
 
 		$this->assertEquals( 10, \substr_count($actual, 'INCLUDE TEST') );
+	}
+
+	/**
+	 * @covers ::setIncludes
+	 * @covers ::replaceInclude
+	 * @covers ::process
+	 * @covers ::compile
+	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::replacePlaceholder
+	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::setStrict
+	 * @uses \Kshabazz\SigmaRemix\Parser::isStrict
+	 * @uses \Kshabazz\SigmaRemix\SigmaRemixException
+	 */
+	public function test_calling_replace_on_two_blocks_in_one_template()
+	{
+		$template = \file_get_contents(
+			$this->templateDir . DIRECTORY_SEPARATOR . 'layout-1-user.html'
+		);
+
+		Parser::setStrict( TRUE );
+
+		$parser = new Parser( $template, $this->templateDir );
+
+		$actual = $parser->process();
+
+		$this->assertContains( 'Replace block 1', $actual );
+		$this->assertContains( 'Replace block 2', $actual );
+		$this->assertNotContains( 'INCLUDE', $actual );
+		$this->assertNotContains( 'REPLACE', $actual );
+
+		Parser::setStrict( FALSE );
 	}
 }
 ?>

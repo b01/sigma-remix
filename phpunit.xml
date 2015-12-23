@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.5/phpunit.xsd"
+		 xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/5.1/phpunit.xsd"
 		 bootstrap="tests/bootstrap.php"
+		 beStrictAboutTestsThatDoNotTestAnything="true"
+		 beStrictAboutChangesToGlobalState="true"
 		 checkForUnintentionallyCoveredCode="true"
 		 colors="true"
 		 coverage-text="true"
-		 disallow-test-output="true"
-		 report-useless-tests="true"
-		 strict-coverage="true"
+		 beStrictAboutOutputDuringTests="true"
 		 forceCoversAnnotation="true"
 		 mapTestClassNameToCoveredClassName="true"
 		 verbose="true">
