@@ -387,5 +387,37 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
 		Parser::setStrict( FALSE );
 	}
+
+
+
+	/**
+	 * @covers ::setIncludes
+	 * @covers ::replaceInclude
+	 * @covers ::process
+	 * @covers ::compile
+	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
+	 * @uses \Kshabazz\SigmaRemix\Parser::setPlaceholders
+	 * @uses \Kshabazz\SigmaRemix\Parser::setFunctions
+	 * @uses \Kshabazz\SigmaRemix\Parser::setBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::replacePlaceholder
+	 * @uses \Kshabazz\SigmaRemix\Parser::setReplaceBlocks
+	 * @uses \Kshabazz\SigmaRemix\Parser::setStrict
+	 * @uses \Kshabazz\SigmaRemix\Parser::isStrict
+	 * @uses \Kshabazz\SigmaRemix\SigmaRemixException
+	 */
+	public function testCompileAnIncludeTagThatLoopsLoopsInfinitelyButStopsAtTheSetRecursionLimit()
+	{
+		$template = \file_get_contents(
+			$this->templateDir . DIRECTORY_SEPARATOR . 'include-recursively-infinite-loop-2.html'
+		);
+
+		Parser::setStrict( FALSE );
+
+		$parser = new Parser( $template, $this->templateDir );
+
+		$actual = $parser->process();
+
+		$this->assertEquals( 10, \substr_count($actual, 'INCLUDE TEST') );
+	}
 }
 ?>

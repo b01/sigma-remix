@@ -250,19 +250,20 @@ class Parser
 	 *
 	 * @param $pMatch
 	 * @return string
+	 * @throws \Kshabazz\SigmaRemix\ParserException
 	 */
 	private function replaceInclude( $pMatch )
 	{
-		static $recursionCount = 0;
+		static $recursionCount = 1;
 		$content = '';
 		$includeFile = $this->includeTemplatesDir . DIRECTORY_SEPARATOR . $pMatch[ 1 ];
 
 		// Prevent infinite loop via recursion.
-		if ( $recursionCount > self::$recursionLimit )
+		if ( $recursionCount >= self::$recursionLimit )
 		{
 			if ( static::isStrict() )
 			{
-				$recursionCount = 0;
+				$recursionCount = 1;
 				throw new ParserException( ParserException::RECURSION, ['INCLUDE', __FUNCTION__] );
 			}
 
