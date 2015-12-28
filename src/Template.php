@@ -24,7 +24,7 @@ class Template
 		$blockPlaceholders,
 		/** @var string Compiled PHP template. */
 		$compiledTemplate,
-		/** @var Parser */
+		/** @var Compiler */
 		$parser,
 		/** @var array Placeholder values. */
 		$placeholders,
@@ -51,6 +51,7 @@ class Template
 
 		$this->blockPlaceholders = [];
 		$this->parser = $pParser;
+		$this->replaceBlocks = [];
 	}
 
 	/**
@@ -69,7 +70,7 @@ class Template
 		// Allow dependency injection.
 		if ( !isset($this->parser) )
 		{
-			$this->parser = new Parser( $template, self::$rootDir );
+			$this->parser = new Compiler( $template, self::$rootDir );
 		}
 
 		$this->parser->setBlockReplacements( $this->replaceBlocks );

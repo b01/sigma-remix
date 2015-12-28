@@ -3,22 +3,24 @@ A retake on the PEAR module HTML_Template_Sigma written by Alexey Borzov and oth
 
 ## Why A Re-Write
 I like how well Sigma integrates with HTML and the API is quite simple. However, its written as one big class, and can
-be hard to modify; so adding new features is time consuming. I've decided to rewrite it, but with quite a fiew
-changes and hopefully optimization and performance enhancements.
+be hard to modify; so adding new features is time consuming. It is also difficult to debug the compiled templates, as
+they are serialized code. I've decided to rewrite it, but with quite a few changes and hopefully optimization and 
+performance enhancements. A win would be to make it more inviting to maintain, or hack in new features.
 
-The output of a compiled template will be plain PHP and text. Which should allow any PHP developer to easily
-review and debug compiled template.
+I mention that the compiled template is just serialized code. I plan to make the output of a compiled template be 
+plain PHP and text. Which should allow any PHP developer to easily review and debug a compiled template.
 
 ## Why Another Logic-less Template Engine
 
-Because it is time consuming reading through a mix of PHP and text, especially when that text contains HTML. These kind
-of template engines allow you to separate them somewhat. Rather nicely I think.
+Because it is time consuming reading through a mix of logic and HTML, These kind of template engines allow you to 
+separate them somewhat. Rather nicely I think.
 
-Yes there are plenty of other logic-less templates out there, none integrate with HTML as nicely as Sigma did. And
-though this engine does not do everything exactly like Sigma, I help the HTML integration niceness.
+Yes there are plenty of other logic-less templates out there, however, none integrate with HTML as nicely as Sigma did.
+And though this engine does not do everything exactly like Sigma, its still in the same vein, and retains the HTML 
+integration niceness.
 
-I also don't like view logic in my backend. So I strongly encourage using a View classes to place all your view logic,
-instead of throwing it in a controller or some other strange place.
+To the contrary, I also don't like view logic in my backend. So I strongly encourage using a View classes to place all 
+your view logic, instead of throwing it in a controller or some other strange place.
 
 ## Example of Template Compilation
 

@@ -7,6 +7,7 @@ use Kshabazz\SigmaRemix\Template;
  *
  * @package \Kshabazz\SigmaRemix\Tests
  * @coversDefaultClass \Kshabazz\SigmaRemix\Template
+ * @uses \Kshabazz\SigmaRemix\Parser
  */
 class TemplateTest extends \PHPUnit_Framework_TestCase
 {
@@ -84,9 +85,9 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Template::render
 	 * @uses \Kshabazz\SigmaRemix\Template::save
-	 * @uses \Kshabazz\SigmaRemix\Parser
+	 * @uses \Kshabazz\SigmaRemix\Compiler
 	 */
-	public function test_loading_a_template_with_one_placeholder()
+	public function testShouldCompileTemplateWithOnePlaceholder()
 	{
 		$template = new Template( $this->templateDir . DIRECTORY_SEPARATOR . 'placeholders-1.html' );
 		$compiled = $template->render([ 'TEST_1' => '4321' ]);
@@ -98,7 +99,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * @covers ::save
 	 * @uses \Kshabazz\SigmaRemix\Template::setCacheDir
-	 * @depends test_loading_a_template_with_one_placeholder
+	 * @depends testShouldCompileTemplateWithOnePlaceholder
 	 */
 	public function test_should_save_complied_template( Template $pTemplate )
 	{
@@ -132,7 +133,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Template::build
 	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Template::render
-	 * @uses \Kshabazz\SigmaRemix\Parser
+	 * @uses \Kshabazz\SigmaRemix\Compiler
 	 */
 	public function test_should_parse_a_block()
 	{
@@ -160,7 +161,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	 * @covers ::compilePlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Template::__construct
 	 * @uses \Kshabazz\SigmaRemix\Template::build
-	 * @uses \Kshabazz\SigmaRemix\Parser
+	 * @uses \Kshabazz\SigmaRemix\Compiler
 	 */
 	public function test_should_render_a_template()
 	{
@@ -179,7 +180,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Template::__construct
 	 * @uses \Kshabazz\SigmaRemix\Template::build
 	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
-	 * @uses \Kshabazz\SigmaRemix\Parser
+	 * @uses \Kshabazz\SigmaRemix\Compiler
 	 */
 	public function test_should_render_nested_block()
 	{
@@ -203,7 +204,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Template::__construct
 	 * @uses \Kshabazz\SigmaRemix\Template::build
 	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
-	 * @uses \Kshabazz\SigmaRemix\Parser
+	 * @uses \Kshabazz\SigmaRemix\Compiler
 	 */
 	public function test_should_render_a_complex_template()
 	{
@@ -236,7 +237,7 @@ class TemplateTest extends \PHPUnit_Framework_TestCase
 	 * @uses \Kshabazz\SigmaRemix\Template::compilePlaceholders
 	 * @uses \Kshabazz\SigmaRemix\Template::parseBlock
 	 * @uses \Kshabazz\SigmaRemix\Template::render
-	 * @uses \Kshabazz\SigmaRemix\Parser
+	 * @uses \Kshabazz\SigmaRemix\Compiler
 	 */
 	public function test_replacing_a_block()
 	{

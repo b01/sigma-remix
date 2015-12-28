@@ -1,6 +1,7 @@
 #Directories
 #-----------
 /.idea/
+/.phpunit/
 /cache/
 /tests/fixtures/cache/
 /vendor/
