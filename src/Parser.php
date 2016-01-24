@@ -32,6 +32,8 @@ class Parser
 	private
 		/** @var array A list of block found and replaced within a template. */
 		$blocks,
+		/** @var string Regular expression to parse blocks. */
+		$blockRegExp,
 		/** @var array Blocks to remove from the template. */
 		$blockRemovals,
 		/** @var array Blocks to replace with new content. */
@@ -111,6 +113,42 @@ class Parser
 			. '<\!\-\- /replace \-\->' // end the tag.
 			. '@smU';
 	}
+
+	/**
+	 * Replace blocks in a template with the PHP counter part.
+	 *
+	 * A block MUST have a begin and end tag, or it will be skipped.
+	 * WARNING: Having block tags that are opened but not closed, and visa vera, can cause sideeffect.
+	 * <code>
+	 * <!-- [a_block] -->
+	 *   Place content here.
+	 * <!-- [/a_block] -->
+	 * </code>
+	 *
+	 * @param string|array $pTemplate A string containing block syntax to parse.
+	 * @return mixed
+	 */
+	public function block( $pTemplate )
+	{
+		$this->blocks = [];
+
+		return \preg_replace_callback(
+			$this->blockRegExp,
+			[ $this, 'replaceBlock' ],
+			$pTemplate
+		);
+	}
+
+	/**
+	 * Get names of blocks found when parsing.
+	 *
+	 * @return array
+	 */
+	public function getBlocks()
+	{
+		return $this->blocks;
+	}
+
 	/**
 	 * Set blocks to remove from the template.
 	 *
@@ -129,6 +167,20 @@ class Parser
 	}
 
 	/**
+	 * Set content to replace existing blocks.
+	 *
+	 * @param array $pReplacements
+	 * @param bool $pMerge Set the current array or merge in with previous.
+	 * @return $this
+	 */
+	public function setBlocksReplacement( array $pReplacements, $pMerge = TRUE )
+	{
+		$this->blockReplacements = $pMerge ? \array_merge( $this->blockReplacements, $pReplacements ) : $pReplacements;
+
+		return $this;
+	}
+
+	/**
 	 * Perform block PHP substitution.
 	 *
 	 * @param array $pMatch
@@ -139,7 +191,7 @@ class Parser
 	{
 		if ( static::$debug )
 		{
-			print_r( $pMatch );
+			\print_r( $pMatch );
 		}
 
 		static $recursionCount = 0;
@@ -186,7 +238,7 @@ class Parser
 			return '';
 		}
 
-		// Build a list of all blocks found.
+		// Build a list of all block names found.
 		$this->blocks[] = $block;
 
 		return "<?php foreach (\${$block}_ary as \${$block}_vars):\n"
@@ -263,41 +315,6 @@ class Parser
 		$this->placeholders[] = $placeholder;
 
 		return '<?= $' . $placeholder . '; ?>';
-	}
-
-	/**
-	 * Replace blocks in a template with the PHP counter part.
-	 *
-	 * A block MUST have a begin and end tag, or it will be ignored.
-	 * <code>
-	 * <!-- BEGIN MY_BLOCK -->
-	 *   Place content here
-	 * <!-- END MY_BLOCK -->
-	 * </code>
-	 *
-	 * @param string|array $pTemplate Template to parse.
-	 * @param array $pReplacements Content to replace exiting blocks.
-	 * @param array $pBlocks Return all parsed block names as a reference array.
-	 * @return string
-	 */
-	public function blockTag( $pTemplate, array $pReplacements = [], array & $pBlocks )
-	{
-		$this->blockReplacements = $pReplacements;
-
-		$output = \preg_replace_callback(
-			$this->blockRegExp,
-			[ $this, 'replaceBlock' ],
-//			function ( array $pMatches ) use (& $pBlocks)
-//			{
-//				return $this->replaceBlock( $pMatches, $pBlocks );
-//			},
-			$pTemplate
-		);
-
-		// TODO: Figure out how not to do this.
-		$pBlocks = $this->blocks;
-
-		return $output;
 	}
 
 	/**

@@ -44,7 +44,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @covers ::blockTag
+	 * @covers ::block
 	 * @covers ::replaceBlock
 	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
 	 */
@@ -55,9 +55,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 		);
 
 		$parser = new Parser();
-		$blocks = [];
-
-		$data = $parser->blockTag( $template, [], $blocks );
+		$data = $parser->block( $template );
 
 		$expected = "foreach (\$BLOCK_1_ary as \$BLOCK_1_vars):\n"
 			. "\textract(\$BLOCK_1_vars); ?>";
@@ -66,20 +64,19 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @covers ::blockTag
+	 * @covers ::block
 	 * @covers ::replaceBlock
 	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
 	 */
-	public function testCompile2ConsecutiveBlocksToForeachStatements()
+	public function testParse2ConsecutiveBlocksToForeachStatements()
 	{
 		$template = \file_get_contents(
 			$this->templateDir . DIRECTORY_SEPARATOR . 'blocks-2.html'
 		);
 
 		$parser = new Parser();
-		$blocks = [];
 
-		$data = $parser->blockTag( $template, [], $blocks );
+		$data = $parser->block( $template );
 
 		$expected = "foreach (\$BLOCK_1_ary as \$BLOCK_1_vars):\n"
 			. "\textract(\$BLOCK_1_vars); ?>";
@@ -93,8 +90,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @covers ::blockTag
+	 * @covers ::block
 	 * @covers ::replaceBlock
+	 * @covers ::getBlocks
 	 * @uses \Kshabazz\SigmaRemix\Parser::__construct
 	 */
 	public function testCompileNestedBlocksToNestedForeachStatements()
@@ -104,9 +102,14 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 		);
 
 		$parser = new Parser();
-		$blocks = [];
 
-		$data = $parser->blockTag( $template, [], $blocks );
+		$data = $parser->block( $template );
+
+		$blocks = $parser->getBlocks();
+
+		$this->assertEquals( 'NESTED_BLOCK_1', $blocks[0] );
+		$this->assertEquals( 'BLOCK_1', $blocks[1] );
+		$this->assertEquals( 'BLOCK_2', $blocks[2] );
 
 		$expected = "foreach (\$BLOCK_1_ary as \$BLOCK_1_vars):\n"
 			. "\textract(\$BLOCK_1_vars); ?>";

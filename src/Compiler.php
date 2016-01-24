@@ -159,15 +159,16 @@ class Compiler
 	 *
 	 * Each key should be a block name, to replace, it value/content.
 	 *
-	 * TODO: Make sure each content element gets parsed at compile time,
-	 * otherwise there will be template elements in the final output.
+	 * TODO: Make sure each content element gets parsed at compile time, otherwise there will be template elements
+	 * in the final output.
 	 *
 	 * @param array $pReplacements An array of template strings.
+	 * @param bool $pMerge Merge in array, or override current values.
 	 * @return $this
 	 */
-	public function setBlockReplacements( array $pReplacements = NULL )
+	public function setBlockReplacements( array $pReplacements = NULL, $pMerge = TRUE )
 	{
-		$this->blockReplacements = \array_merge( $this->blockReplacements, $pReplacements );
+		$this->blockReplacements = $pMerge ? \array_merge( $this->blockReplacements, $pReplacements ) : $pReplacements;
 
 		return $this;
 	}
@@ -294,7 +295,11 @@ class Compiler
 	 */
 	private function setBlocks( $pTemplate, array & $pBlocks )
 	{
-		return $this->parser->blockTag( $pTemplate, $this->blockReplacements, $pBlocks );
+		$this->parser->setBlocksReplacement( $this->blockReplacements );
+		$parsedTemplate = $this->parser->block( $pTemplate );
+		$pBlocks = $this->parser->getBlocks();
+
+		return $parsedTemplate;
 	}
 
 	/**
